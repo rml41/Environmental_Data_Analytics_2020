@@ -21,6 +21,8 @@ editor_options:
 **Reproducibility**: when someone else (e.g., future self) can obtain the same outcomes from the same dataset and analysis
 
 * Raw data are always separate from processed data
+***never edit within original excel spreadsheet 
+***edit data in R and save as a new data file
 * Link data transformations with a reproducible pipeline
 * Raw datasets NEVER changed
 * Cleaning/transformations done through coding, not by editing within Excel
@@ -96,6 +98,7 @@ median(5, 4, 6, 4, 6)
 4 == 5
 
 ```
+***!= means not equal to 
 
 ### Objects
 You can create R objects with an *assignment* statement. The indicator for an assigment is the `<-` symbol. A good way to think about the meaning of an assignment statement is "object name (lefthand side) gets value (righthand side)."
@@ -247,6 +250,8 @@ For now, here are some ways to access the help tools in R:
 
 ```{r}
 ??seq
+help(seq)
+
 ```
 
 
