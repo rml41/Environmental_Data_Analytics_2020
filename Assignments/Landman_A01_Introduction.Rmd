@@ -4,7 +4,7 @@ author: "Rachel Landman"
 output: pdf_document
 geometry: margin=2.54cm
 ---
- 
+  
 ## OVERVIEW
 
 This exercise accompanies the introductory material in Environmental Data Analytics. 
