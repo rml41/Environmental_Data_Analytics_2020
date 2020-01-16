@@ -27,6 +27,11 @@ R treats objects differently based on their characteristics. For more informatio
 * **Data Frames** 2 dimensional structure that is more general than a matrix. Columns can have different modes (e.g., numeric and factor). When we import csv files into the R workspace, they will enter as data frames.
 
 Define what each new piece of syntax does below (i.e., fill in blank comments). Note that the R chunk has been divided into sections (# at beginning of line, ---- at end)
+
+***c means concatenate 
+***when importing character strings, must use quotations or R will think it's an operation 
+***R knows True and False are logic statements because they are in all CAPS
+***"vector1[3], R calls up 3rd number in vector 1"
 ```{r}
 # Vectors ----
 vector1 <- c(1,2,5.3,6,-2,4) # numeric vector
@@ -39,19 +44,19 @@ vector3
 vector1[3] # 
 
 # Matrices ----
-matrix1 <- matrix(1:20, nrow = 5,ncol = 4) # 
+matrix1 <- matrix(1:20, nrow = 5,ncol = 4) #makes a matrix from 1-20 with 5 rows and 4 columns  
 matrix1
-matrix2 <- matrix(1:20, nrow = 5, ncol = 4, byrow = TRUE) #
+matrix2 <- matrix(1:20, nrow = 5, ncol = 4, byrow = TRUE) #fills numbers by row, not by column 
 matrix2
 matrix3 <- matrix(1:20, nrow = 5, ncol = 4, byrow = TRUE, # return after comma continues the line
                   dimnames = list(c("uno", "dos", "tres", "cuatro", "cinco"), 
-                                  c("un", "deux", "trois", "cat"))) #
-
-matrix1[4, ] #
-matrix1[ , 3] #
-matrix1[c(12, 14)] #
-matrix1[c(12:14)] #
-matrix1[2:4, 1:3] #
+                                  c("un", "deux", "trois", "cat"))) #renames columns and row headings
+matrix3
+matrix1[4, ] #calls up row 4
+matrix1[ , 3] #calls up column 3
+matrix1[c(12, 14)] #calls the 12th and 14th number in the matrix -> specify specific objects within matrix 
+matrix1[c(12:14)] #calls up 12th-14th numbers in the matrix -> specify specific objects within matrix 
+matrix1[2:4, 1:3] #calls up rows 2-4 and columns 1-3
 
 cells <- c(1, 26, 24, 68)
 rnames <- c("R1", "R2")
@@ -61,53 +66,71 @@ matrix4 <- matrix(cells, nrow = 2, ncol = 2, byrow = TRUE,
 matrix4
 
 # Lists ---- 
-list1 <- list(name = "Maria", mynumbers = vector1, mymatrix = matrix1, age = 5.3); list1
+list1 <- list(name = "Maria", mynumbers = vector1, mymatrix = matrix1, age = 5.3); list1 
+### four different elements of list (Name, numbers, matrix, age)
 list1[[2]]
 
-# Data Frames ----
-d <- c(1, 2, 3, 4) # What type of vector?
-e <- c("red", "white", "red", NA) # What type of vector?
-f <- c(TRUE, TRUE, TRUE, FALSE) # What type of vector?
+# Data Frames ---- 
+d <- c(1, 2, 3, 4) # What type of vector? numeric
+e <- c("red", "white", "red", NA) # What type of vector? character
+### need to add NC when certain columns have diff number of rows
+f <- c(TRUE, TRUE, TRUE, FALSE) # What type of vector? logic
 dataframe1 <- data.frame(d,e,f) #
-names(dataframe1) <- c("ID","Color","Passed"); View(dataframe1) # 
+names(dataframe1) <- c("ID","Color","Passed"); View(dataframe1) # this is how we name the three different columns
 
-dataframe1[1:2,] # 
-dataframe1[c("ID","Passed")] # 
+dataframe1[1:2,] # this is rows 1-2
+dataframe1[c("ID","Passed")] # calls specific columns 
 dataframe1$ID
 
 ```
 Question: How do the different types of data appear in the Environment tab?
 
-> Answer: 
+> Answer: Some come up as values and come com up as data. The data frames, matrices, lists are data and thier components are the values that make up the data. 
 
 Question: In the R chunk below, write "dataframe1$". Press `tab` after you type the dollar sign. What happens?
 
-> Answer: 
+> Answer: It autofilled the first column name "ID"
 
 ### Coding challenge
 
 Find a ten-day forecast of temperatures (Fahrenheit) for Durham, North Carolina. Create two vectors, one representing the high temperature on each of the ten days and one representing the low.
 
 ```{r}
-
+vectorhighF <- c(62,45,50,50,40,40,45,52,54,58) # highs
+vectorlowF <- c(31,29,43,24,23,23,26,30,42,41) # lows
 ```
 
 Now, create two additional vectors that include the ten-day forecast for the high and low temperatures in Celsius.
 
 ```{r}
+vectorhighC <- c(17,7,10,10,4,4,7,11,12,14) # highs
+vectorlowC <- c(-1,-1,6,-4,-5,-5,-3,-1,5,5) # lows
 
+vectorhighC <- (vectorhighF-32)*5/9 # highs
+vectorlowC <- (vectorlowF-32)*5/9 # lows
 ```
 
 Combine your four vectors into a data frame and add informative column names.
 
 ```{r}
+dataframeTemp <- data.frame(vectorhighF,vectorlowF,vectorhighC,vectorlowC)
+names(dataframeTemp) <- c("High (F)","Low (F)","High (C)","Low (C)"); View(dataframeTemp)
 
 ```
 
 Use the common functions `summary` and `sd` to obtain basic data summaries of the ten-day forecast. How would you call these functions differently for the entire data frame vs. a single column? Attempt to demonstrate both options below.
 
 ```{r}
+summary(dataframeTemp)
+summary(dataframeTemp$`High (F)`)
+summary(dataframeTemp$`High (C)`)
+summary(dataframeTemp$`Low (F)`)
+summary(dataframeTemp$`Low (C)`)
 
+sd(dataframeTemp$`High (F)`)
+sd(dataframeTemp$`High (C)`)
+sd(dataframeTemp$`Low (F)`)
+sd(dataframeTemp$`Low (C)`)
 ```
 
 
@@ -130,8 +153,8 @@ If a package is already installed, you will need to load it every session. You c
 
 ```{r}
 # We will use the packages dplyr and ggplot2 regularly. 
-#install.packages("dplyr") 
-#install.packages("ggplot2")
+##install.packages("dplyr") 
+##install.packages("ggplot2")
 # comment out install commands, use only when needed and re-comment
 
 library(dplyr)
