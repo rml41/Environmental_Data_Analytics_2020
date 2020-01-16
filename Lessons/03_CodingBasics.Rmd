@@ -130,7 +130,7 @@ summary(dataframeTemp$`Low (C)`)
 sd(dataframeTemp$`High (F)`)
 sd(dataframeTemp$`High (C)`)
 sd(dataframeTemp$`Low (F)`)
-sd(dataframeTemp$`Low (C)`)
+sd(dataframeTemp$`Low (C)`)  
 ```
 
 
