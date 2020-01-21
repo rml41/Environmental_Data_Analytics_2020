@@ -1,0 +1,252 @@
+---
+title: "4: Data Exploration"
+author: "Environmental Data Analytics | Kateri Salk"
+date: "Spring 2020"
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
+---
+
+## Lesson Objectives
+1. Set up a data analysis session in RStudio
+2. Import and explore datasets in R
+3. Apply data exploration skills to a real-world example dataset
+
+## Best Practices in R
+
+In many situations in data analytics, you may be expected to work from multiple computers or share projects among multiple users. A few general best practices will avoid common pitfalls related to collaborative work. 
+
+### Set your working directory
+
+A session in RStudio will always function by mapping to a specific folder in your computer, called the *working directory*. All navigation between folders and files will happen relative to this working directory. When you open an R project, your working directory will automatically set to the folder that holds the project file. If you open an R script or RMarkdown document directly by double-clicking the file, your working directory will automatically set to the folder that holds that file. It is a good idea to note with a comment at the top of your file which working directory you intend the user to designate.
+
+In this course, we will always open the R project file for the course, and additional navigation of the working directory will happen from that folder. To check your working directory, use the following R command: 
+
+```{r}
+# Working directory should be set to the parent folder for the Environmental Data Analytics Course, i.e., the folder that houses the R Project file.
+
+getwd()
+```
+
+If your working directory is not set to the folder you want, you have several options. The first is to directly code your working directory. You may do this by defining an absolute file path (below). What are the pitfalls of using an absolute file path?
+
+```{r}
+# Absolute file path is commented out
+#setwd("/Users/katerisalk/Documents/Duke/Courses/Environmental_Data_Analytics")
+setwd("/Users/rmlandman/Desktop/Data Analytics/Environmental_Data_Analytics_2020")
+
+### only works well when you're working on just one computer 
+### better to use Session -> set working directory 
+### good to set working directory to where the file is located 
+  ### for lessons the wd will be the lessons folder and for assignments it'll be the assignments folder 
+```
+
+You may change your working directory without coding by going to the Session menu in RStudio and navigating to the Set Working Directory tab. From there, you may select from a series of options to reset your working directory. 
+
+Another option is to use the R package `here`. We will not be using this option in class, but it is growing quite popular among R users. A more detailed description and rationale can be found here: https://github.com/jennybc/here_here. 
+
+### Load your packages
+
+At the top of your R scripts, you should load any packages that need to be used for that R script. A common issue that arises is that packages will be loaded in the middle of the code, making it difficult to run specific chunks of code without scrolling to make sure all necessary packages are loaded. For example, the tidyverse package is one that we will use regularly in class.
+
+At the same time, you should also load your theme if you are doing any data visualization with ggplot. More on this later.
+
+```{r, message = FALSE}
+# Load package
+library(tidyverse)
+```
+
+### Import your datasets
+
+Datasets can be imported into R. Good data practices dictate that raw data (from yourself or others) should not be changed and re-saved within the spreadsheet, but rather the data should be changed with reproducible techniques and saved as a new file. Note:  data should be saved in nonproprietary formats, namely .csv or .txt files rather than .xls or .xlsx files. 
+
+To read in a data file, you may specify a file path with an *absolute* or a *relative* file path. As above with your working directory, it is a better practice to use a relative directory. To navigate a relative file path, use `./` followed by the tab key to navigate  forward in the folder structure, and use `../` followed by the tab key to navigate back out of the folder structure. For example, this lesson is located in the "Lessons" folder, and we need to navigate into the "Data" folder. After clicking the correct folder, use `/` and press tab again to continue the process. 
+
+You may also import datasets from the Files tab, but this is not recommended since this is not reproducible.
+
+```{r}
+# Absolute file path (not recommended)
+#read.csv("/Users/katerisalk/Documents/Duke/Courses/Environmental_Data_Analytics/Data/Raw/USGS_Site02085000_Flow_Raw.csv")
+### only works if it is one the same computer 
+
+# Relative file path (friendly for users regardless of machine)
+USGS.flow.data <- read.csv("./Data/Raw/USGS_Site02085000_Flow_Raw.csv")
+USGS.flow.data <- read.csv("./Data/Raw/USGS_Site02085000_Flow_Raw.csv")
+### goes within current working directory 
+### ./Data tells it to go into the Data folder within the current working directory 
+
+### if have working directory set to the lessons folder, you put two dots, because it tells R to go out one folder and in another folder e.g. USGS.flow.data <- read.csv("../Data/Raw/USGS_Site02085000_Flow_Raw.csv")
+
+# What happens if we don't assign a name to our imported dataset?
+### does not show up in environment, R just reads it and it shows up in the consol 
+#read.csv("../Data/Raw/USGS_Site02085000_Flow_Raw.csv")
+
+###read.csv("./Data/Raw/USGS_Site02085000_Flow_Raw.csv")
+
+# Another option is to choose with your browser
+# read.csv(file.choose())
+### pulls up a browser window that allows you to find it in your file folder 
+### not a great option because it's not reproducable and doesn't show which folder it comes from 
+
+# To import .txt files, use read.table rather than read.csv
+#read.table()
+
+```
+
+## EXPLORE YOUR DATASET
+
+Take a moment to read through the README file associated with the USGS dataset on discharge at the Eno River. Where can you find this file? How does the placement and information found in this file relate to the best practices for reproducible data analysis?
+> ANSWER: This file is found within the metadata folder. It is important to have a meta data folder because it provides information that the data set does not provide. It tells us where this data is from because the data set just says the USGS site no, which doesn't mean anything. It says where the data can be found, a direct link. It shares more information about what some of the letters and numbers in the data set mean. It says when the data set was accessed so you can know to check for updates. USGS reports data before they have gone through all the quality assurance checks and labels them as P (provisional), so it is important to know that some numbers might change. File naming convention can be helpful when working on a project with multiple people. This helps it be systematic. 
+
+```{r}
+View(USGS.flow.data)
+# Alternate option: click on data frame in Environment tab
+
+class(USGS.flow.data)
+colnames(USGS.flow.data)
+
+# Rename columns
+colnames(USGS.flow.data) <- c("agency_cd", "site_no", "datetime", 
+                              "discharge.max", "discharge.max.approval", 
+                              "discharge.min", "discharge.min.approval", 
+                              "discharge.mean", "discharge.mean.approval", 
+                              "gage.height.max", "gage.height.max.approval", 
+                              "gage.height.min", "gage.height.min.approval", 
+                              "gage.height.mean", "gage.height.mean.approval")
+
+### if want to just rename just a couple columns, add bracket after code with numbers of the columns you want to rename
+###colnames(USGS.flow.data) [1,5,6] <- c("name1","name5","name6")
+
+
+str(USGS.flow.data)
+dim(USGS.flow.data)
+length(USGS.flow.data) ### number of columns 
+nrow(USGS.flow.data) ###number of rows
+
+head(USGS.flow.data) ### beginning of data frame
+head(USGS.flow.data, 10) ### 10 means you want 10 rows
+tail(USGS.flow.data, 5) ### end of data frame 
+USGS.flow.data[30000:30005, c(3, 8, 14)]
+
+class(USGS.flow.data$datetime) ### tells us it is a factor, which is problem because we want date to be number
+class(USGS.flow.data$discharge.mean)
+class(USGS.flow.data$gage.height.mean)
+
+summary(USGS.flow.data) ###summary of all data
+summary(USGS.flow.data$discharge.mean) ### summary of discharge mean column 
+```
+
+What happened to blank cells in the spreadsheet when they were imported into R?
+> Answer: They were listed at NA if they were a  numeric value. If it's a character/factor that will be retained as blank. 
+
+## Adjusting Datasets
+
+### Removing NAs
+
+Notice in our dataset that our discharge and gage height observations have many NAs, meaning no measurement was recorded for a specific day. In some cases, it might be in our best interest to remove NAs from a dataset. Removing NAs or not will depend on your research question.
+
+```{r}
+summary(USGS.flow.data$discharge.mean) ### tells you how many NA's are in df
+summary(USGS.flow.data$gage.height.mean)
+```
+Question: What types of research questions might make it favorable to remove NAs from a dataset, and what types of research questions might make it favorable to retain NAs in the dataset?
+
+> Answer: Sometimes know an NA exists is informative so you know you need more data. If you only want to analyze presence data then you'd want to remove NA's. Need to remove NA's if you want to make a correlation matrix. 
+
+```{r}
+USGS.flow.data.complete <- na.omit(USGS.flow.data) ###call it a new name so that you can make changes to the df and compare with old df 
+### one you make changes to a df using code, you can't go back 
+dim(USGS.flow.data) ### 33690 rows
+dim(USGS.flow.data.complete) ### 5342 rows
+### a lot fewer rows in the second dataframe because na.omit removes all the rows with an NA in at least one column 
+### there are ways to remove NA's just from specific columns 
+
+mean(USGS.flow.data.complete$discharge.mean)
+sd(USGS.flow.data.complete$discharge.mean)
+summary(USGS.flow.data.complete$discharge.mean)
+
+```
+
+### Formatting dates
+
+R will often import dates as factors or characters rather than dates. To fix, this we need to tell R that it is looking at dates. We also need to specify the format the dates are in. By default, if you don't provide a format, R will attempt to use %Y-%m-%d or %Y/%m/%d as a default. Note: if you are working collaboratively in an international setting, using a year-month-day format in spreadsheets is the least ambiguous of date formats. Make sure to check whether month-day-year or day-month-year is used in an ambiguously formatted spreadsheet.
+
+Formatting of dates in R: 
+
+%d  day as number (0-31)
+%m  month (00-12, can be e.g., 01 or 1)
+%y  2-digit year
+%Y  4-digit year
+%a  abbreviated weekday
+%A  unabbreviated weekday
+%b  abbreviated month
+%B  unabbreviated month
+
+In some cases when dates are provided as integers, you may need to provide an origin for your dates. Beware: the "origin" date for Excel (Windows), Excel (Mac), R, and MATLAB all have different origin dates. Google this if it comes up. Origin of date for R is Jan 1 1970.
+
+```{r}
+help(as.Date)
+
+# Adjust date formatting for today
+# Write code for three different date formats. 
+# An example is provided to get you started.
+# (code must be uncommented)
+today <- Sys.Date()
+format(today, format = "%B")
+format(today, format = "%y")
+format(today, format = "%b")
+format(today, format = "%A")
+### r stores date as year-month-day 
+
+USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%m/%d/%y") ### tell R what the format that exists in the data is (%m/%d/%y)
+```
+
+Note that for every date prior to 1969, R has assigned the date in the 2000s rather than the 1900s. This can be fixed with an `ifelse` statement inside a function. Run through the code below and write what is happening in the comment above each line.
+
+```{r}
+# 
+USGS.flow.data$datetime <- format(USGS.flow.data$datetime, "%y%m%d")
+
+#
+create.early.dates <- (function(d) {
+       paste0(ifelse(d > 181231,"19","20"),d)
+       })
+#
+USGS.flow.data$datetime <- create.early.dates(USGS.flow.data$datetime)
+
+#
+USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%Y%m%d") 
+
+```
+
+## Saving datasets
+
+We just edited our raw dataset into a processed form. We may want to return to this processed dataset later, which will be easier to do if we save it as a spreadsheet. 
+
+
+```{r}
+write.csv(USGS.flow.data, file = "./Data/Processed/USGS_Site02085000_Flow_Processed.csv", row.names=FALSE)
+
+```
+
+
+## Tips and Tricks
+
+### Knitting
+
+* In the Knit menu in the Editor, you will need to specify whether your knit directory should be the document directory or the project directory. If your document is not knitting correctly, try switching between the document directory and project directory as a first troubleshooting option.
+
+### Spreadsheets
+
+*Files should be saved as .csv or .txt for easy import into R. Note that complex formatting, including formulas in Excel, are not saved when spreadsheets are converted to comma separated or text formats (i.e., values alone are saved).
+
+*The first row is reserved for column headers.
+
+*A secondary row for column headers (e.g., units) should not be used if data are being imported into R. Incorporate units into the first row column headers if necessary.
+
+*Short names are preferred for column headers, to the extent they are informative. Additional information can be stored in comments within R scripts and/or in README files.
+
+*Spaces in column names will be replaced with a `.` when imported into R. When designing spreadsheets, avoid spaces in column headers. 
+
+*Avoid symbols in column headers. This can cause issues when importing into R.
