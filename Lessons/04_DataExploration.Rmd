@@ -100,7 +100,7 @@ Take a moment to read through the README file associated with the USGS dataset o
 > ANSWER: This file is found within the metadata folder. It is important to have a meta data folder because it provides information that the data set does not provide. It tells us where this data is from because the data set just says the USGS site no, which doesn't mean anything. It says where the data can be found, a direct link. It shares more information about what some of the letters and numbers in the data set mean. It says when the data set was accessed so you can know to check for updates. USGS reports data before they have gone through all the quality assurance checks and labels them as P (provisional), so it is important to know that some numbers might change. File naming convention can be helpful when working on a project with multiple people. This helps it be systematic. 
 
 ```{r}
-View(USGS.flow.data)
+#View(USGS.flow.data)
 # Alternate option: click on data frame in Environment tab
 
 class(USGS.flow.data)
