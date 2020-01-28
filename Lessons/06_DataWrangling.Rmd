@@ -20,23 +20,30 @@ Today we will work with a dataset from the [North Temperate Lakes Long-Term Ecol
 Opening discussion: why might we be interested in long-term observations of temperature, oxygen, and light in lakes?
 
 > Add notes here: 
+# Impact fish population 
+# Impact primary productivity 
+# Indicators of larger climatic changes in the region 
+# Harmful algal blooms
+# Demonstrate seasonal changes 
+# Indicate if excess nutrients are entering the lake 
 
 ```{r, message = FALSE}
 getwd()
 library(tidyverse)
-#install.packages(lubridate)
+#install.packages("lubridate")
 library(lubridate)
 NTL.phys.data <- read.csv("./Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv")
 
 colnames(NTL.phys.data)
-head(NTL.phys.data)
+head(NTL.phys.data) # head gives first 6 rows in data frame 
 summary(NTL.phys.data)
-str(NTL.phys.data)
-dim(NTL.phys.data)
+str(NTL.phys.data) # tells what type of data is in each column 
+dim(NTL.phys.data) 
 
 class(NTL.phys.data$sampledate)
 # Format sampledate as date
 NTL.phys.data$sampledate <- as.Date(NTL.phys.data$sampledate, format = "%m/%d/%y")
+class(NTL.phys.data$sampledate)
 ```
 
 ## Data Wrangling
@@ -54,7 +61,10 @@ What is the best way to wrangle data? There are multiple ways to arrive at a spe
 `dplyr` is a package in R that includes functions for data manipulation (i.e., data wrangling or data munging). `dplyr` is included in the tidyverse package, so you should already have it installed on your machine. The functions act as verbs for data wrangling processes. For more information, run this line of code:
 
 ```{r, results = "hide"}
-vignette("dplyr")
+### results = "hide" makes it does vignette doesn't appear in final knit PDF document 
+vignette("dplyr") 
+### document that goes through main function and examples of how to use each function 
+### a lot of tidyvers functions also have cheat sheets 
 ```
 
 ### Filter
@@ -62,24 +72,27 @@ vignette("dplyr")
 Filtering allows us to choose certain rows (observations) in our dataset.
 
 Here are the relevant commands used in the `filter` function. Add some notes to designate what these commands mean. 
-`==`
-`!=`
-`<`
-`<=`
-`>`
-`>=`
-`&`
-`|`
+`==` ### equal
+`!=` ### not equal 
+`<` ### less than 
+`<=` ### less than or equal 
+`>` ### greater than 
+`>=` ### greater than or equal 
+`&` ### and 
+`|` ### or 
 
 ```{r}
 class(NTL.phys.data$lakeid)
-class(NTL.phys.data$depth)
+class(NTL.phys.data$depth) # meters down from surface
 
 # matrix filtering
 NTL.phys.data.surface1 <- NTL.phys.data[NTL.phys.data$depth == 0,]
+### just surface depths (zero)
+### must include comma so that it indicates every column 
 
 # dplyr filtering
 NTL.phys.data.surface2 <- filter(NTL.phys.data, depth == 0)
+### don't need to specify all rows with dplyr so don't need comma after zero
 NTL.phys.data.surface3 <- filter(NTL.phys.data, depth < 0.25)
 
 # Did the methods arrive at the same result?
@@ -97,10 +110,13 @@ NTL.phys.data.PeterPaul2 <- filter(NTL.phys.data, lakename != "Central Long Lake
                                      lakename != "Crampton Lake" & lakename != "East Long Lake" &
                                      lakename != "Hummingbird Lake" & lakename != "Tuesday Lake" &
                                      lakename != "Ward Lake" & lakename != "West Long Lake")
-NTL.phys.data.PeterPaul3 <- filter(NTL.phys.data, lakename %in% c("Paul Lake", "Peter Lake"))
+NTL.phys.data.PeterPaul3 <- filter(NTL.phys.data, lakename %in% c("Paul Lake", "Peter Lake")) 
+    ### useful is you have a long list 
+    ### %n% says to include anything that is Paul or Peter
+    ### need to concatinate what you want to include
 
 # Choose a range of conditions of a numeric or integer variable
-summary(NTL.phys.data$daynum)
+summary(NTL.phys.data$daynum) ### shows that samples are taken from 55 - 307th day of the year because can't sample when lake is frozen 
 NTL.phys.data.JunethruOctober1 <- filter(NTL.phys.data, daynum > 151 & daynum < 305)
 NTL.phys.data.JunethruOctober2 <- filter(NTL.phys.data, daynum > 151, daynum < 305)
 NTL.phys.data.JunethruOctober3 <- filter(NTL.phys.data, daynum >= 152 & daynum <= 304)
@@ -110,15 +126,23 @@ NTL.phys.data.JunethruOctober4 <- filter(NTL.phys.data, daynum %in% c(152:304))
 # filter NTL.phys.data for the year 1999
 # what code do you need to use, based on the class of the variable?
 class(NTL.phys.data$year4)
+NTL.phys.data.1999 <- filter(NTL.phys.data, year4 == 1999)
+
+dim(NTL.phys.data.1999)
+
 
 # Exercise: 
 # filter NTL.phys.data for Tuesday Lake from 1990 through 1999.
+NTL.phys.data.Tuesday <- filter(NTL.phys.data, 
+                                lakename == "Tuesday Lake" & 
+                                  year4 >=1990 & year4 <= 1999)
 
+dim(NTL.phys.data.Tuesday)
 
 ```
 Question: Why don't we filter using row numbers?
 
-> Answer: 
+> Answer: Because we wanted to fill based on attributes, not row numbers. Would be more work to figure out what rows we want. Also, if data set changes, row numbers change. 
 
 ### Arrange
 
@@ -126,11 +150,21 @@ Arranging allows us to change the order of rows in our dataset. By default, the 
 
 ```{r}
 NTL.phys.data.depth.ascending <- arrange(NTL.phys.data, depth)
+### arrange function automatically arranges by ascending 
 NTL.phys.data.depth.descending <- arrange(NTL.phys.data, desc(depth))
 
 # Exercise: 
 # Arrange NTL.phys.data by temperature, in descending order. 
+
+NTL.phys.data.temp.descending <- arrange(NTL.phys.data, desc(temperature_C))
+
+### when we arrange a column, NA will always show up at the bottom of the data set 
+
 # Which dates, lakes, and depths have the highest temperatures?
+
+### East Long Lake and Hummingbird Lake
+### Near surfaec depths (0 or 0.5)
+### June and July 
 
 
 ```
@@ -141,6 +175,10 @@ Selecting allows us to choose certain columns (variables) in our dataset.
 ```{r}
 NTL.phys.data.temps <- select(NTL.phys.data, lakename, sampledate:temperature_C)
 
+### as we call out a list of column names, we just use commas 
+### select allows you to say you don't want to include something 
+### could say sampledate:temperature_C, - lakename
+
 ```
 ### Mutate
 
@@ -149,6 +187,9 @@ Mutating allows us to add new columns that are functions of existing columns. Op
 ```{r}
 
 NTL.phys.data.temps <- mutate(NTL.phys.data.temps, temperature_F = (temperature_C*9/5) + 32)
+view(NTL.phys.data.temps)
+
+### always adds new column on far right side of data
 
 ```
 
