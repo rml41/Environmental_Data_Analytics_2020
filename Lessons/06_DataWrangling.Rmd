@@ -222,6 +222,10 @@ NTL.phys.data.processed <-
   filter(lakename == "Paul Lake" | lakename == "Peter Lake") %>%
   select(lakename, sampledate:temperature_C) %>%
   mutate(temperature_F = (temperature_C*9/5) + 32)
+
+### specify data frame as the first line of the code
+### all the following functions will run on that data frame
+### %>% (pipe) means then 
   
 ```
 
