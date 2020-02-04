@@ -63,23 +63,23 @@ str(EPA.PM25.NC19.data)
 ```{r}
 #3
 
-EPA.O3.NC18.data$Date <- as.Date(EPA.O3.NC18.data$Date, format = "%m/%d/%Y")
+EPA.O3.NC18.data$Date <- as.Date(EPA.O3.NC18.data$Date, format = "%Y-%m-%d")
 class(EPA.O3.NC18.data$Date) #check class
 view(EPA.O3.NC18.data) #check to make sure date looks good
 
-EPA.O3.NC19.data$Date <- as.Date(EPA.O3.NC19.data$Date, format = "%m/%d/%Y")
+EPA.O3.NC19.data$Date <- as.Date(EPA.O3.NC19.data$Date, format = "%Y-%m-%d")
 class(EPA.O3.NC19.data$Date) #check class
 view(EPA.O3.NC19.data) #check to make sure date looks good
 
-EPA.PM25.NC18.data$Date <- as.Date(EPA.PM25.NC18.data$Date, format = "%m/%d/%Y")
+EPA.PM25.NC18.data$Date <- as.Date(EPA.PM25.NC18.data$Date, format = "%Y-%m-%d")
 class(EPA.PM25.NC18.data$Date) #check class
 view(EPA.PM25.NC18.data) #check to make sure date looks good
 
-EPA.PM25.NC19.data$Date <- as.Date(EPA.PM25.NC19.data$Date, format = "%m/%d/%Y")
+EPA.PM25.NC19.data$Date <- as.Date(EPA.PM25.NC19.data$Date, format = "%Y-%m-%d")
 class(EPA.PM25.NC19.data$Date) #check class
 view(EPA.PM25.NC19.data) #check to make sure date looks good
 
-#4 Select the following columns: Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE
+#4
 
 EPA.O3.NC18.data.select <- select(EPA.O3.NC18.data, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY:SITE_LONGITUDE)
 
@@ -90,7 +90,7 @@ EPA.PM25.NC18.data.select <- select(EPA.PM25.NC18.data, Date, DAILY_AQI_VALUE, S
 EPA.PM25.NC19.data.select <- select(EPA.PM25.NC19.data, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY:SITE_LONGITUDE)
 
 
-#5 For the PM2.5 datasets, fill all cells in AQS_PARAMETER_DESC with "PM2.5" (all cells in this column should be identical).
+#5 
 
 EPA.PM25.NC18.data.AQI <- mutate(EPA.PM25.NC18.data.select, AQS_PARAMETER_DESC = ("PM2.5"))
 view(EPA.PM25.NC18.data.AQI)
@@ -108,7 +108,6 @@ write.csv(EPA.O3.NC19.data.select, row.names = FALSE, file = "../Data/Processed/
 write.csv(EPA.PM25.NC18.data.select, row.names = FALSE, file = "../Data/Processed/EPAair_PM25_NC2018_processed.csv")
 
 write.csv(EPA.PM25.NC19.data.select, row.names = FALSE, file = "../Data/Processed/EPAair_PM25_NC2019_processed.csv")
-
 ```
 
 
@@ -126,42 +125,55 @@ write.csv(EPA.PM25.NC19.data.select, row.names = FALSE, file = "../Data/Processe
 11. Save your processed dataset with the following file name: "EPAair_O3_PM25_NC1718_Processed.csv"
 
 ```{r}
-#7 Combine the four datasets with `rbind`. Make sure your column names are identical prior to running this code.
-
+#7 
 colnames(EPA.O3.NC18.data.select)
+str(EPA.O3.NC18.data.select)
+EPA.O3.NC18.data.select$Date <- as.Date(EPA.O3.NC18.data.select$Date, format = "%Y-%m-%d")
+
 colnames(EPA.O3.NC19.data.select)
+str(EPA.O3.NC19.data.select)
+EPA.O3.NC19.data.select$Date <- as.Date(EPA.O3.NC19.data.select$Date, format = "%Y-%m-%d")
+
 colnames(EPA.PM25.NC18.data.AQI)
+EPA.PM25.NC18.data.select$Date <- as.Date(EPA.PM25.NC18.data.select$Date, format = "%Y-%m-%d")
+str(EPA.PM25.NC18.data.select)
+
 colnames(EPA.PM25.NC19.data.AQI)
+str(EPA.PM25.NC19.data.select)
+EPA.PM25.NC19.data.select$Date <- as.Date(EPA.PM25.NC19.data.select$Date, format = "%Y-%m-%d")
+
+### Had to change the date columns to a date because I got an error message when trying to rbind.
+### Once I changed them to a date, the error went away
 
 EPA.AQI.18_19 <- rbind(EPA.O3.NC18.data.select, EPA.O3.NC19.data.select, EPA.PM25.NC18.data.AQI, EPA.PM25.NC19.data.AQI)
 
-#8W rangle your new dataset with a pipe function (%>%) so that it fills the following conditions: 
+class(EPA.AQI.18_19$Date)
+EPA.AQI.18_19$Date <- as.Date(EPA.AQI.18_19$Date, format = "%Y-%m-%d")
 
-#* Include all sites that the four data frames have in common: "Linville Falls", "Durham Armory", #"Leggett", "Hattie Avenue", "Clemmons Middle", "Mendenhall School", "Frying Pan Mountain", "West #Johnston Co.", "Garinger High School", "Castle Hayne", "Pitt Agri. Center", "Bryson City", #"Millbrook School" (the function `intersect` can figure out common factor levels)
-#* Some sites have multiple measurements per day. Use the split-apply-combine strategy to generate daily means: group by date, site, aqs parameter, and county. Take the mean of the AQI value, latitude, and longitude.
-#* Add columns for "Month" and "Year" by parsing your "Date" column (hint: `lubridate` package)
-#* Hint: the dimensions of this dataset should be 14,752 x 9.
+#8
 
-EPA.AQI.18_19 <-
-  EPA.AQI.18_19 %>%
-  filter()
+EPA.AQI.18_19.combined <-
+  EPA.AQI.18_19 %>% 
+  filter(Site.Name %in% c("Linville Falls", "Durham Armory", "Leggett", "Hattie Avenue", "Clemmons Middle", "Mendenhall School", "Frying Pan Mountain", "West Johnston Co.", "Garinger High School", "Castle Hayne", "Pitt Agri. Center", "Bryson City", "Millbrook School"))%>%
+  group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>% 
+  summarise(meanaqi = mean(DAILY_AQI_VALUE),
+            meanlatitude = mean(SITE_LATITUDE),
+            meanlongitude = mean(SITE_LONGITUDE)) %>%
+  mutate(month = month(Date)) %>%
+  mutate(year = year(Date))
 
-NTL.PeterPaul.summaries <- 
-  NTL.phys.nutrient.data.PeterPaul %>%
-  filter(depth == 0) %>%
-  group_by(lakename, month) %>%
-  filter(!is.na(temperature_C) & !is.na(tn_ug) & !is.na(tp_ug)) %>%
-  summarise(meantemp = mean(temperature_C), 
-            sdtemp = sd(temperature_C), 
-            meanTN = mean(tn_ug), 
-            sdTN = sd(tn_ug), 
-            meanTP = mean(tp_ug), 
-            sdTP = sd(tp_ug))
+dim(EPA.AQI.18_19.combined)
+
+  
 #9
+EPA.AQI.18_19.spread <- spread(EPA.AQI.18_19.combined, AQS_PARAMETER_DESC, meanaqi)
+colnames(EPA.AQI.18_19.spread)
 
-#10
+#10 
+dim(EPA.AQI.18_19.spread)
 
 #11
+write.csv(EPA.AQI.18_19.spread, row.names = FALSE, file = "../Data/Processed/EPAair_O3_PM25_NC1718_Processed.csv")
 
 ```
 
@@ -174,12 +186,28 @@ NTL.PeterPaul.summaries <-
 ```{r}
 #12a
 
+EPA.AQI.18_19.summaries <- 
+  EPA.AQI.18_19.spread %>%
+  group_by(Site.Name, month, year) %>%
+  summarise(meanAQIO3 = mean(Ozone), 
+            meanAQIPM25 = mean (PM2.5))
+
 #12b
 
+EPA.AQI.18_19.summaries <- 
+  EPA.AQI.18_19.spread %>%
+  group_by(Site.Name, month, year) %>%
+  summarise(meanAQIO3 = mean(Ozone), 
+            meanAQIPM25 = mean (PM2.5))%>%
+  drop_na(month) %>%
+  drop_na(year)
+
 #13
+dim(EPA.AQI.18_19.summaries)
 
 ```
 
 14. Why did we use the function `drop_na` rather than `na.omit`?
 
-> Answer: 
+> Answer: drop_na allowed us to just drop the NAs from the month and year column. 
+na.omit would have also dropped NAs from the PM2.5 and O3 columns. 
