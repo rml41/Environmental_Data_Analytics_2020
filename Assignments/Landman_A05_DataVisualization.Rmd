@@ -58,7 +58,7 @@ Niwot.Litter$collectDate <-
 
 ```{r}
 
-mytheme <- theme_classic(base_size = 14) +
+mytheme <- theme_classic(base_size = 12) +
   theme(axis.text = element_text(color = "black"), 
         legend.position = "top")
 
@@ -76,8 +76,9 @@ For numbers 4-7, create ggplot graphs and adjust aesthetics to follow best pract
 Phosphorus_Phosphateplot <-
   ggplot(PeterPaul.chem.nutrients, aes(x = tp_ug, y = po4, color = lakename))+
   geom_point()+
+  geom_smooth(method = lm, color = "black")+
   labs (x = expression("Total Phosphorus" ~ (mu*g / L)), y = "Phosphate", color = "")+
-  ylim(0,75)+
+  ylim(0,60)+
   scale_color_manual(values = c("#82FF33", "#33ADFF"))+
    theme(legend.position = "right")
 
@@ -94,52 +95,32 @@ print(Phosphorus_Phosphateplot)
 Temp_boxplot <-
   ggplot(PeterPaul.chem.nutrients, aes(y = temperature_C, x = as.factor(month), color = lakename))+
   geom_boxplot()+
-  labs(x = "Month", y = expression("Temperature " ( degree*C)), color = "")+
+  labs(x = "Month", y = expression("Temp" ( degree*C)), color = "")+
    scale_color_manual(values = c("#82FF33", "#33ADFF"))
 print(Temp_boxplot)
 
 TP_boxplot <-
   ggplot(PeterPaul.chem.nutrients, aes(x = as.factor(month), y = tp_ug, color = lakename))+
   geom_boxplot()+
-  labs(x = "Month", y = expression("Total Phosphorus" ~ (mu*g / L)), color = "")+
+  labs(x = "Month", y = expression("Phosphorus" ~ (mu*g / L)), color = "")+
   scale_color_manual(values = c("#82FF33", "#33ADFF"))
 print(TP_boxplot)
 
 TN_boxplot <- 
   ggplot(PeterPaul.chem.nutrients, aes(y = tn_ug, x = as.factor(month), color = lakename))+
   geom_boxplot()+
-   labs(x = "Month", y = expression("Total Nitrogen" ~ (mu*g / L)), color = "")+
+   labs(x = "Month", y = expression("Nitrogen" ~ (mu*g / L)), color = "")+
   scale_color_manual(values = c("#82FF33", "#33ADFF"))
 print(TN_boxplot)
 
-### had to replot each to remove legend so that only one legend would show in cowplot 
-
-Temp_boxplot1 <-
-  ggplot(PeterPaul.chem.nutrients, aes(y = temperature_C, x = as.factor(month), color = lakename))+
-  geom_boxplot()+
-  labs(x = "Month", y = expression("Temperature " ( degree*C)), color = "")+
-   scale_color_manual(values = c("#82FF33", "#33ADFF"))+
-  theme(legend.position = "none")
-
-TP_boxplot1 <-
-  ggplot(PeterPaul.chem.nutrients, aes(x = as.factor(month), y = tp_ug, color = lakename))+
-  geom_boxplot()+
-  labs(x = "Month", y = expression("Phosphorus" ~ (mu*g / L)), color = "")+
-  scale_color_manual(values = c("#82FF33", "#33ADFF"))+
-   theme(legend.position = "none")
-
-TN_boxplot1 <- 
-  ggplot(PeterPaul.chem.nutrients, aes(y = tn_ug, x = as.factor(month), color = lakename))+
-  geom_boxplot()+
-   labs(x = "Month", y = expression("Nitrogen" ~ (mu*g / L)), color = "")+
-  scale_color_manual(values = c("#82FF33", "#33ADFF"))+
-   theme(legend.position = "none")
-
-
 library(cowplot)
-legend <- get_legend(Temp_boxplot + theme(legend.position = "top"))
 
-plot_grid(Temp_boxplot1, TP_boxplot1, TN_boxplot1, ncol = 1, align = "v", axis = "ltb", legend)
+Temp_NutrientsPlot <- 
+  plot_grid(Temp_boxplot, TP_boxplot+theme(legend.position = "none"), 
+            TN_boxplot+theme(legend.position = "none"), 
+            ncol = 1, align = "v", axis = "ltb", label_size = 6)
+print(Temp_NutrientsPlot)
+
 
 ```
 

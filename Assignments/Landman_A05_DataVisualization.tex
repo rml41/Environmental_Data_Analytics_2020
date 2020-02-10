@@ -250,7 +250,7 @@ The completed exercise is due on Tuesday, February 11 at 1:00 pm.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{mytheme <-}\StringTok{ }\KeywordTok{theme_classic}\NormalTok{(}\DataTypeTok{base_size =} \DecValTok{14}\NormalTok{) }\OperatorTok{+}
+\NormalTok{mytheme <-}\StringTok{ }\KeywordTok{theme_classic}\NormalTok{(}\DataTypeTok{base_size =} \DecValTok{12}\NormalTok{) }\OperatorTok{+}
 \StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.text =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{color =} \StringTok{"black"}\NormalTok{), }
         \DataTypeTok{legend.position =} \StringTok{"top"}\NormalTok{)}
 
@@ -280,8 +280,9 @@ palettes, axes, and additional aesthetics are edited accordingly.
 \NormalTok{Phosphorus_Phosphateplot <-}
 \StringTok{  }\KeywordTok{ggplot}\NormalTok{(PeterPaul.chem.nutrients, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ tp_ug, }\DataTypeTok{y =}\NormalTok{ po4, }\DataTypeTok{color =}\NormalTok{ lakename))}\OperatorTok{+}
 \StringTok{  }\KeywordTok{geom_point}\NormalTok{()}\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method =}\NormalTok{ lm, }\DataTypeTok{color =} \StringTok{"black"}\NormalTok{)}\OperatorTok{+}
 \StringTok{  }\KeywordTok{labs}\NormalTok{ (}\DataTypeTok{x =} \KeywordTok{expression}\NormalTok{(}\StringTok{"Total Phosphorus"} \OperatorTok{~}\StringTok{ }\NormalTok{(mu}\OperatorTok{*}\NormalTok{g }\OperatorTok{/}\StringTok{ }\NormalTok{L)), }\DataTypeTok{y =} \StringTok{"Phosphate"}\NormalTok{, }\DataTypeTok{color =} \StringTok{""}\NormalTok{)}\OperatorTok{+}
-\StringTok{  }\KeywordTok{ylim}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{75}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{ylim}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{60}\NormalTok{)}\OperatorTok{+}
 \StringTok{  }\KeywordTok{scale_color_manual}\NormalTok{(}\DataTypeTok{values =} \KeywordTok{c}\NormalTok{(}\StringTok{"#82FF33"}\NormalTok{, }\StringTok{"#33ADFF"}\NormalTok{))}\OperatorTok{+}
 \StringTok{   }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"right"}\NormalTok{)}
 
@@ -290,7 +291,15 @@ palettes, axes, and additional aesthetics are edited accordingly.
 \end{Shaded}
 
 \begin{verbatim}
+## Warning: Removed 21947 rows containing non-finite values (stat_smooth).
+\end{verbatim}
+
+\begin{verbatim}
 ## Warning: Removed 21947 rows containing missing values (geom_point).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 2 rows containing missing values (geom_smooth).
 \end{verbatim}
 
 \includegraphics{Landman_A05_DataVisualization_files/figure-latex/unnamed-chunk-3-1.pdf}
@@ -311,7 +320,7 @@ palettes, axes, and additional aesthetics are edited accordingly.
 \NormalTok{Temp_boxplot <-}
 \StringTok{  }\KeywordTok{ggplot}\NormalTok{(PeterPaul.chem.nutrients, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ temperature_C, }\DataTypeTok{x =} \KeywordTok{as.factor}\NormalTok{(month), }\DataTypeTok{color =}\NormalTok{ lakename))}\OperatorTok{+}
 \StringTok{  }\KeywordTok{geom_boxplot}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Month"}\NormalTok{, }\DataTypeTok{y =} \KeywordTok{expression}\NormalTok{(}\StringTok{"Temperature "}\NormalTok{ ( degree}\OperatorTok{*}\NormalTok{C)), }\DataTypeTok{color =} \StringTok{""}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Month"}\NormalTok{, }\DataTypeTok{y =} \KeywordTok{expression}\NormalTok{(}\StringTok{"Temp"}\NormalTok{ ( degree}\OperatorTok{*}\NormalTok{C)), }\DataTypeTok{color =} \StringTok{""}\NormalTok{)}\OperatorTok{+}
 \StringTok{   }\KeywordTok{scale_color_manual}\NormalTok{(}\DataTypeTok{values =} \KeywordTok{c}\NormalTok{(}\StringTok{"#82FF33"}\NormalTok{, }\StringTok{"#33ADFF"}\NormalTok{))}
 \KeywordTok{print}\NormalTok{(Temp_boxplot)}
 \end{Highlighting}
@@ -328,7 +337,7 @@ palettes, axes, and additional aesthetics are edited accordingly.
 \NormalTok{TP_boxplot <-}
 \StringTok{  }\KeywordTok{ggplot}\NormalTok{(PeterPaul.chem.nutrients, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{as.factor}\NormalTok{(month), }\DataTypeTok{y =}\NormalTok{ tp_ug, }\DataTypeTok{color =}\NormalTok{ lakename))}\OperatorTok{+}
 \StringTok{  }\KeywordTok{geom_boxplot}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Month"}\NormalTok{, }\DataTypeTok{y =} \KeywordTok{expression}\NormalTok{(}\StringTok{"Total Phosphorus"} \OperatorTok{~}\StringTok{ }\NormalTok{(mu}\OperatorTok{*}\NormalTok{g }\OperatorTok{/}\StringTok{ }\NormalTok{L)), }\DataTypeTok{color =} \StringTok{""}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Month"}\NormalTok{, }\DataTypeTok{y =} \KeywordTok{expression}\NormalTok{(}\StringTok{"Phosphorus"} \OperatorTok{~}\StringTok{ }\NormalTok{(mu}\OperatorTok{*}\NormalTok{g }\OperatorTok{/}\StringTok{ }\NormalTok{L)), }\DataTypeTok{color =} \StringTok{""}\NormalTok{)}\OperatorTok{+}
 \StringTok{  }\KeywordTok{scale_color_manual}\NormalTok{(}\DataTypeTok{values =} \KeywordTok{c}\NormalTok{(}\StringTok{"#82FF33"}\NormalTok{, }\StringTok{"#33ADFF"}\NormalTok{))}
 \KeywordTok{print}\NormalTok{(TP_boxplot)}
 \end{Highlighting}
@@ -345,7 +354,7 @@ palettes, axes, and additional aesthetics are edited accordingly.
 \NormalTok{TN_boxplot <-}\StringTok{ }
 \StringTok{  }\KeywordTok{ggplot}\NormalTok{(PeterPaul.chem.nutrients, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ tn_ug, }\DataTypeTok{x =} \KeywordTok{as.factor}\NormalTok{(month), }\DataTypeTok{color =}\NormalTok{ lakename))}\OperatorTok{+}
 \StringTok{  }\KeywordTok{geom_boxplot}\NormalTok{()}\OperatorTok{+}
-\StringTok{   }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Month"}\NormalTok{, }\DataTypeTok{y =} \KeywordTok{expression}\NormalTok{(}\StringTok{"Total Nitrogen"} \OperatorTok{~}\StringTok{ }\NormalTok{(mu}\OperatorTok{*}\NormalTok{g }\OperatorTok{/}\StringTok{ }\NormalTok{L)), }\DataTypeTok{color =} \StringTok{""}\NormalTok{)}\OperatorTok{+}
+\StringTok{   }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Month"}\NormalTok{, }\DataTypeTok{y =} \KeywordTok{expression}\NormalTok{(}\StringTok{"Nitrogen"} \OperatorTok{~}\StringTok{ }\NormalTok{(mu}\OperatorTok{*}\NormalTok{g }\OperatorTok{/}\StringTok{ }\NormalTok{L)), }\DataTypeTok{color =} \StringTok{""}\NormalTok{)}\OperatorTok{+}
 \StringTok{  }\KeywordTok{scale_color_manual}\NormalTok{(}\DataTypeTok{values =} \KeywordTok{c}\NormalTok{(}\StringTok{"#82FF33"}\NormalTok{, }\StringTok{"#33ADFF"}\NormalTok{))}
 \KeywordTok{print}\NormalTok{(TN_boxplot)}
 \end{Highlighting}
@@ -359,30 +368,6 @@ palettes, axes, and additional aesthetics are edited accordingly.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{### had to replot each to remove legend so that only one legend would show in cowplot }
-
-\NormalTok{Temp_boxplot1 <-}
-\StringTok{  }\KeywordTok{ggplot}\NormalTok{(PeterPaul.chem.nutrients, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ temperature_C, }\DataTypeTok{x =} \KeywordTok{as.factor}\NormalTok{(month), }\DataTypeTok{color =}\NormalTok{ lakename))}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_boxplot}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Month"}\NormalTok{, }\DataTypeTok{y =} \KeywordTok{expression}\NormalTok{(}\StringTok{"Temperature "}\NormalTok{ ( degree}\OperatorTok{*}\NormalTok{C)), }\DataTypeTok{color =} \StringTok{""}\NormalTok{)}\OperatorTok{+}
-\StringTok{   }\KeywordTok{scale_color_manual}\NormalTok{(}\DataTypeTok{values =} \KeywordTok{c}\NormalTok{(}\StringTok{"#82FF33"}\NormalTok{, }\StringTok{"#33ADFF"}\NormalTok{))}\OperatorTok{+}
-\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"none"}\NormalTok{)}
-
-\NormalTok{TP_boxplot1 <-}
-\StringTok{  }\KeywordTok{ggplot}\NormalTok{(PeterPaul.chem.nutrients, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{as.factor}\NormalTok{(month), }\DataTypeTok{y =}\NormalTok{ tp_ug, }\DataTypeTok{color =}\NormalTok{ lakename))}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_boxplot}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Month"}\NormalTok{, }\DataTypeTok{y =} \KeywordTok{expression}\NormalTok{(}\StringTok{"Phosphorus"} \OperatorTok{~}\StringTok{ }\NormalTok{(mu}\OperatorTok{*}\NormalTok{g }\OperatorTok{/}\StringTok{ }\NormalTok{L)), }\DataTypeTok{color =} \StringTok{""}\NormalTok{)}\OperatorTok{+}
-\StringTok{  }\KeywordTok{scale_color_manual}\NormalTok{(}\DataTypeTok{values =} \KeywordTok{c}\NormalTok{(}\StringTok{"#82FF33"}\NormalTok{, }\StringTok{"#33ADFF"}\NormalTok{))}\OperatorTok{+}
-\StringTok{   }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"none"}\NormalTok{)}
-
-\NormalTok{TN_boxplot1 <-}\StringTok{ }
-\StringTok{  }\KeywordTok{ggplot}\NormalTok{(PeterPaul.chem.nutrients, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ tn_ug, }\DataTypeTok{x =} \KeywordTok{as.factor}\NormalTok{(month), }\DataTypeTok{color =}\NormalTok{ lakename))}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_boxplot}\NormalTok{()}\OperatorTok{+}
-\StringTok{   }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Month"}\NormalTok{, }\DataTypeTok{y =} \KeywordTok{expression}\NormalTok{(}\StringTok{"Nitrogen"} \OperatorTok{~}\StringTok{ }\NormalTok{(mu}\OperatorTok{*}\NormalTok{g }\OperatorTok{/}\StringTok{ }\NormalTok{L)), }\DataTypeTok{color =} \StringTok{""}\NormalTok{)}\OperatorTok{+}
-\StringTok{  }\KeywordTok{scale_color_manual}\NormalTok{(}\DataTypeTok{values =} \KeywordTok{c}\NormalTok{(}\StringTok{"#82FF33"}\NormalTok{, }\StringTok{"#33ADFF"}\NormalTok{))}\OperatorTok{+}
-\StringTok{   }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"none"}\NormalTok{)}
-
-
 \KeywordTok{library}\NormalTok{(cowplot)}
 \end{Highlighting}
 \end{Shaded}
@@ -411,17 +396,10 @@ palettes, axes, and additional aesthetics are edited accordingly.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{legend <-}\StringTok{ }\KeywordTok{get_legend}\NormalTok{(Temp_boxplot }\OperatorTok{+}\StringTok{ }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"top"}\NormalTok{))}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## Warning: Removed 3566 rows containing non-finite values (stat_boxplot).
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{plot_grid}\NormalTok{(Temp_boxplot1, TP_boxplot1, TN_boxplot1, }\DataTypeTok{ncol =} \DecValTok{1}\NormalTok{, }\DataTypeTok{align =} \StringTok{"v"}\NormalTok{, }\DataTypeTok{axis =} \StringTok{"ltb"}\NormalTok{, legend)}
+\NormalTok{Temp_NutrientsPlot <-}\StringTok{ }
+\StringTok{  }\KeywordTok{plot_grid}\NormalTok{(Temp_boxplot, TP_boxplot}\OperatorTok{+}\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"none"}\NormalTok{), }
+\NormalTok{            TN_boxplot}\OperatorTok{+}\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"none"}\NormalTok{), }
+            \DataTypeTok{ncol =} \DecValTok{1}\NormalTok{, }\DataTypeTok{align =} \StringTok{"v"}\NormalTok{, }\DataTypeTok{axis =} \StringTok{"ltb"}\NormalTok{, }\DataTypeTok{label_size =} \DecValTok{6}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -436,6 +414,12 @@ palettes, axes, and additional aesthetics are edited accordingly.
 \begin{verbatim}
 ## Warning: Removed 21583 rows containing non-finite values (stat_boxplot).
 \end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(Temp_NutrientsPlot)}
+\end{Highlighting}
+\end{Shaded}
 
 \includegraphics{Landman_A05_DataVisualization_files/figure-latex/unnamed-chunk-4-4.pdf}
 
