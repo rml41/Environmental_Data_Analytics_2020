@@ -59,7 +59,7 @@ Peter Lake was manipulated with additions of nitrogen and phosphorus over the ye
 
 4. Which application of the GLM will you use (t-test, one-way ANOVA, two-way ANOVA with main effects, or two-way ANOVA with interaction effects)? Justify your choice.
 
-> Answer: 
+> Answer: I would use a two-way ANOVA with interaction effects because it allows us to examine the effects of the two categorical variables (lake namen and month) on the continuous variable of nutrients. 
 
 5. Run your test for TN. Include examination of groupings and consider interaction effects, if relevant.
 
@@ -68,9 +68,42 @@ Peter Lake was manipulated with additions of nitrogen and phosphorus over the ye
 ```{r}
 #5
 
+Nitrogen.anova.2way <- aov(data = Lake.Nutrients.Surface, tn_ug ~ lakename + as.factor(month))
+summary(Nitrogen.anova.2way)
+
+Nitrogen.anova.2way2 <- lm(data = Lake.Nutrients.Surface, tn_ug ~ lakename + as.factor(month))
+summary(Nitrogen.anova.2way2)
+
+### Post Hoc
+TukeyHSD(Nitrogen.anova.2way)
+
+### Interaction
+Nitrogen.interaction <- with(Lake.Nutrients.Surface, interaction(month, lakename))
+
+Nitrogen.anova.2way3 <- aov(data = Lake.Nutrients.Surface, tn_ug ~ Nitrogen.interaction)
+
+Nitrogen.groups <- HSD.test(Nitrogen.anova.2way3, "Nitrogen.interaction", group = TRUE)
+Nitrogen.groups
+
 
 #6
 
+Phosphorus.anova.2way <- aov(data = Lake.Nutrients.Surface, tp_ug ~ lakename + as.factor(month))
+summary(Phosphorus.anova.2way)
+
+Phosphorus.anova.2way2 <- lm(data = Lake.Nutrients.Surface, tp_ug ~ lakename + as.factor(month))
+summary(Phosphorus.anova.2way2)
+
+### Post Hoc
+TukeyHSD(Phosphorus.anova.2way)
+
+### Interaction
+Phosphorus.interaction <- with(Lake.Nutrients.Surface, interaction(month, lakename))
+
+Phosphorus.anova.2way3 <- aov(data = Lake.Nutrients.Surface, tp_ug ~ Phosphorus.interaction)
+
+Phosphorus.groups <- HSD.test(Phosphorus.anova.2way3, "Phosphorus.interaction", group = TRUE)
+Phosphorus.groups
 
 ```
 
@@ -81,8 +114,49 @@ Peter Lake was manipulated with additions of nitrogen and phosphorus over the ye
 ```{r}
 #7
 
+### Plot 1 - TN 
+
+Nitrogen.anova.plot <- ggplot(Lake.Nutrients.Surface, 
+                              aes(y = tn_ug, x = as.factor(month), color = lakename)) +
+  geom_boxplot()+
+  stat_summary (geom = "text", fun.y = max, vjust = -1, size = 3.5,
+               label = c ("b","ab","b","ab","b","a","b","a","ab","ab"), 
+               position = position_dodge(0.75),
+               show.legend = FALSE) +
+  ylim(0,2250)+
+  theme(legend.position = "top")+
+  labs(x = "Month", y = expression(TN ~ (mu*g / L)), color = "")
+print(Nitrogen.anova.plot)
+
+###Plot 2 - Phosphorus
+
+Phosphorus.anova.plot <- ggplot(Lake.Nutrients.Surface, 
+                              aes(y = tp_ug, x = as.factor(month), color = lakename)) +
+  geom_boxplot()+
+  stat_summary (geom = "text", fun.y = max, vjust = -1, size = 3.5,
+               label = c ("cd","bcd","d","ab","d","a","d","abc","cd","abcd"), 
+               position = position_dodge(0.75),
+               show.legend = FALSE) +
+  ylim(0,75)+
+  labs(x = "Month", y = expression(TP ~ (mu*g / L)), color = "")
+print(Phosphorus.anova.plot)
+
+### second P graph with no legend for cowplot 
+Phosphorus.anova.plot2 <- ggplot(Lake.Nutrients.Surface, 
+                              aes(y = tp_ug, x = as.factor(month), color = lakename)) +
+  geom_boxplot()+
+  stat_summary (geom = "text", fun.y = max, vjust = -1, size = 3.5,
+               label = c ("cd","bcd","d","ab","d","a","d","abc","cd","abcd"), 
+               position = position_dodge(0.75),
+               show.legend = FALSE) +
+  ylim(0,75)+
+  theme(legend.position = "none")+
+  labs(x = "Month", y = expression(TP ~ (mu*g / L)), color = "")
+
 
 #8
+
+plot_grid(Nitrogen.anova.plot, Phosphorus.anova.plot2, nrow = 2, align = "v", rel_heights = c(1.25, 1))
 
 ```
 
