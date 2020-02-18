@@ -1,0 +1,807 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=2.54cm]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Assignment 6: GLMs week 1 (t-test and ANOVA)},
+            pdfauthor={Rachel Landman},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Assignment 6: GLMs week 1 (t-test and ANOVA)}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Rachel Landman}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+    \date{}
+    \predate{}\postdate{}
+  
+
+\begin{document}
+\maketitle
+
+\hypertarget{overview}{%
+\subsection{OVERVIEW}\label{overview}}
+
+This exercise accompanies the lessons in Environmental Data Analytics on
+t-tests and ANOVAs.
+
+\hypertarget{directions}{%
+\subsection{Directions}\label{directions}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Change ``Student Name'' on line 3 (above) with your name.
+\item
+  Work through the steps, \textbf{creating code and output} that fulfill
+  each instruction.
+\item
+  Be sure to \textbf{answer the questions} in this assignment document.
+\item
+  When you have completed the assignment, \textbf{Knit} the text and
+  code into a single PDF file.
+\item
+  After Knitting, submit the completed exercise (PDF file) to the
+  dropbox in Sakai. Add your last name into the file name (e.g.,
+  ``Salk\_A06\_GLMs\_Week1.Rmd'') prior to submission.
+\end{enumerate}
+
+The completed exercise is due on Tuesday, February 18 at 1:00 pm.
+
+\hypertarget{set-up-your-session}{%
+\subsection{Set up your session}\label{set-up-your-session}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Check your working directory, load the \texttt{tidyverse},
+  \texttt{cowplot}, and \texttt{agricolae} packages, and import the
+  NTL-LTER\_Lake\_Nutrients\_PeterPaul\_Processed.csv dataset.
+\item
+  Change the date column to a date format. Call up \texttt{head} of this
+  column to verify.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#1 }
+\KeywordTok{getwd}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "/Users/rmlandman/Desktop/Data Analytics/Environmental_Data_Analytics_2020"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(tidyverse)}
+\KeywordTok{library}\NormalTok{(cowplot)}
+\KeywordTok{library}\NormalTok{(agricolae)}
+
+\NormalTok{Lake.Nutrients <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"./Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv"}\NormalTok{)}
+
+\CommentTok{#2}
+
+\NormalTok{Lake.Nutrients}\OperatorTok{$}\NormalTok{sampledate <-}\StringTok{ }\KeywordTok{as.Date}\NormalTok{(Lake.Nutrients}\OperatorTok{$}\NormalTok{sampledate , }\DataTypeTok{format =} \StringTok{"%Y-%m-%d"}\NormalTok{)}
+\KeywordTok{head}\NormalTok{(Lake.Nutrients}\OperatorTok{$}\NormalTok{sampledate)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "1991-05-20" "1991-05-20" "1991-05-20" "1991-05-20" "1991-05-20"
+## [6] "1991-05-20"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{class}\NormalTok{(Lake.Nutrients}\OperatorTok{$}\NormalTok{sampledate)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Date"
+\end{verbatim}
+
+\hypertarget{wrangle-your-data}{%
+\subsection{Wrangle your data}\label{wrangle-your-data}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Wrangle your dataset so that it contains only surface depths and only
+  the years 1993-1996, inclusive. Set month as a factor.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Lake.Nutrients.Surface <-}\StringTok{ }\KeywordTok{filter}\NormalTok{(Lake.Nutrients, depth }\OperatorTok{==}\StringTok{ }\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{year4 }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{1993}\NormalTok{,}\DecValTok{1994}\NormalTok{,}\DecValTok{1995}\NormalTok{,}\DecValTok{1996}\NormalTok{))}
+
+\NormalTok{Lake.Nutrients.Surface}\OperatorTok{$}\NormalTok{month <-}\StringTok{ }\KeywordTok{as.factor}\NormalTok{(Lake.Nutrients.Surface}\OperatorTok{$}\NormalTok{month)}
+\KeywordTok{class}\NormalTok{(Lake.Nutrients.Surface}\OperatorTok{$}\NormalTok{month)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "factor"
+\end{verbatim}
+
+\hypertarget{analysis}{%
+\subsection{Analysis}\label{analysis}}
+
+Peter Lake was manipulated with additions of nitrogen and phosphorus
+over the years 1993-1996 in an effort to assess the impacts of
+eutrophication in lakes. You are tasked with finding out if nutrients
+are significantly higher in Peter Lake than Paul Lake, and if these
+potential differences in nutrients vary seasonally (use month as a
+factor to represent seasonality). Run two separate tests for TN and TP.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Which application of the GLM will you use (t-test, one-way ANOVA,
+  two-way ANOVA with main effects, or two-way ANOVA with interaction
+  effects)? Justify your choice.
+\end{enumerate}
+
+\begin{quote}
+Answer: I would use a two-way ANOVA with interaction effects because it
+allows us to examine the effects of the two categorical variables (lake
+namen and month) on the continuous variable of either phosphorus or
+nitrogen.
+\end{quote}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{4}
+\item
+  Run your test for TN. Include examination of groupings and consider
+  interaction effects, if relevant.
+\item
+  Run your test for TP. Include examination of groupings and consider
+  interaction effects, if relevant.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#5}
+
+\NormalTok{Nitrogen.anova}\FloatTok{.2}\NormalTok{way <-}\StringTok{ }\KeywordTok{aov}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ Lake.Nutrients.Surface, tn_ug }\OperatorTok{~}\StringTok{ }\NormalTok{lakename }\OperatorTok{+}\StringTok{ }\NormalTok{month)}
+\KeywordTok{summary}\NormalTok{(Nitrogen.anova}\FloatTok{.2}\NormalTok{way)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##              Df  Sum Sq Mean Sq F value   Pr(>F)    
+## lakename      1 2468595 2468595   36.32 2.75e-08 ***
+## month         4  459542  114885    1.69    0.158    
+## Residuals   101 6864107   67961                     
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 23 observations deleted due to missingness
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Nitrogen.anova}\FloatTok{.2}\NormalTok{way2 <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ Lake.Nutrients.Surface, tn_ug }\OperatorTok{~}\StringTok{ }\NormalTok{lakename }\OperatorTok{*}\StringTok{ }\NormalTok{month)}
+\KeywordTok{summary}\NormalTok{(Nitrogen.anova}\FloatTok{.2}\NormalTok{way2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = tn_ug ~ lakename * month, data = Lake.Nutrients.Surface)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -357.88 -118.10  -10.41   50.58 1353.86 
+## 
+## Coefficients:
+##                           Estimate Std. Error t value Pr(>|t|)   
+## (Intercept)                 300.51     106.30   2.827   0.0057 **
+## lakenamePeter Lake           84.43     144.86   0.583   0.5614   
+## month6                       23.61     123.64   0.191   0.8489   
+## month7                       53.12     127.05   0.418   0.6768   
+## month8                       36.00     127.05   0.283   0.7775   
+## month9                      105.82     184.11   0.575   0.5668   
+## lakenamePeter Lake:month6   200.49     170.90   1.173   0.2436   
+## lakenamePeter Lake:month7   271.82     176.18   1.543   0.1261   
+## lakenamePeter Lake:month8   325.05     174.20   1.866   0.0651 . 
+## lakenamePeter Lake:month9    59.70     278.35   0.214   0.8306   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 260.4 on 97 degrees of freedom
+##   (23 observations deleted due to missingness)
+## Multiple R-squared:  0.3285, Adjusted R-squared:  0.2662 
+## F-statistic: 5.272 on 9 and 97 DF,  p-value: 7.729e-06
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{### test interaction }
+
+\NormalTok{Nitrogen.anova}\FloatTok{.2}\NormalTok{way3 <-}\StringTok{ }\KeywordTok{aov}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ Lake.Nutrients.Surface, tn_ug }\OperatorTok{~}\StringTok{ }\NormalTok{lakename }\OperatorTok{*}\StringTok{ }\NormalTok{month)}
+\KeywordTok{summary}\NormalTok{(Nitrogen.anova}\FloatTok{.2}\NormalTok{way3)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                Df  Sum Sq Mean Sq F value   Pr(>F)    
+## lakename        1 2468595 2468595  36.414 2.91e-08 ***
+## month           4  459542  114885   1.695    0.157    
+## lakename:month  4  288272   72068   1.063    0.379    
+## Residuals      97 6575834   67792                     
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 23 observations deleted due to missingness
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Nitrogen.anova}\FloatTok{.2}\NormalTok{way4 <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ Lake.Nutrients.Surface, tn_ug }\OperatorTok{~}\StringTok{ }\NormalTok{lakename }\OperatorTok{*}\StringTok{ }\NormalTok{month)}
+\KeywordTok{summary}\NormalTok{(Nitrogen.anova}\FloatTok{.2}\NormalTok{way4)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = tn_ug ~ lakename * month, data = Lake.Nutrients.Surface)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -357.88 -118.10  -10.41   50.58 1353.86 
+## 
+## Coefficients:
+##                           Estimate Std. Error t value Pr(>|t|)   
+## (Intercept)                 300.51     106.30   2.827   0.0057 **
+## lakenamePeter Lake           84.43     144.86   0.583   0.5614   
+## month6                       23.61     123.64   0.191   0.8489   
+## month7                       53.12     127.05   0.418   0.6768   
+## month8                       36.00     127.05   0.283   0.7775   
+## month9                      105.82     184.11   0.575   0.5668   
+## lakenamePeter Lake:month6   200.49     170.90   1.173   0.2436   
+## lakenamePeter Lake:month7   271.82     176.18   1.543   0.1261   
+## lakenamePeter Lake:month8   325.05     174.20   1.866   0.0651 . 
+## lakenamePeter Lake:month9    59.70     278.35   0.214   0.8306   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 260.4 on 97 degrees of freedom
+##   (23 observations deleted due to missingness)
+## Multiple R-squared:  0.3285, Adjusted R-squared:  0.2662 
+## F-statistic: 5.272 on 9 and 97 DF,  p-value: 7.729e-06
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{### Post Hoc}
+\KeywordTok{TukeyHSD}\NormalTok{(Nitrogen.anova}\FloatTok{.2}\NormalTok{way)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   Tukey multiple comparisons of means
+##     95% family-wise confidence level
+## 
+## Fit: aov(formula = tn_ug ~ lakename + month, data = Lake.Nutrients.Surface)
+## 
+## $lakename
+##                         diff      lwr      upr p adj
+## Peter Lake-Paul Lake 303.796 203.8026 403.7894     0
+## 
+## $month
+##          diff        lwr      upr     p adj
+## 6-5 132.58168 -104.53533 369.6987 0.5307817
+## 7-5 196.50011  -47.94924 440.9495 0.1761663
+## 8-5 208.77984  -32.91447 450.4741 0.1238871
+## 9-5 160.08048 -220.97835 541.1393 0.7701126
+## 7-6  63.91843 -123.99128 251.8281 0.8785969
+## 8-6  76.19815 -108.11330 260.5096 0.7803543
+## 9-6  27.49879 -320.00718 375.0048 0.9994732
+## 8-7  12.27972 -181.37388 205.9333 0.9997809
+## 9-7 -36.41964 -388.96950 316.1302 0.9984948
+## 9-8 -48.69936 -399.34457 301.9458 0.9952369
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{### No need to run with interaction or test grouping because there is no significant interaction}
+\CommentTok{### month is not a significant predictor}
+
+
+\CommentTok{#6}
+
+\NormalTok{Phosphorus.anova}\FloatTok{.2}\NormalTok{way <-}\StringTok{ }\KeywordTok{aov}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ Lake.Nutrients.Surface, tp_ug }\OperatorTok{~}\StringTok{ }\NormalTok{lakename }\OperatorTok{+}\StringTok{ }\NormalTok{month)}
+\KeywordTok{summary}\NormalTok{(Phosphorus.anova}\FloatTok{.2}\NormalTok{way)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##              Df Sum Sq Mean Sq F value Pr(>F)    
+## lakename      1  10228   10228  94.453 <2e-16 ***
+## month         4    813     203   1.876  0.119    
+## Residuals   123  13320     108                   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 1 observation deleted due to missingness
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Phosphorus.anova}\FloatTok{.2}\NormalTok{way2 <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ Lake.Nutrients.Surface, tp_ug }\OperatorTok{~}\StringTok{ }\NormalTok{lakename }\OperatorTok{+}\StringTok{ }\NormalTok{month)}
+\KeywordTok{summary}\NormalTok{(Phosphorus.anova}\FloatTok{.2}\NormalTok{way2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = tp_ug ~ lakename + month, data = Lake.Nutrients.Surface)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -17.456  -5.478  -1.932   2.367  35.938 
+## 
+## Coefficients:
+##                    Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)           4.131      3.051   1.354  0.17816    
+## lakenamePeter Lake   17.951      1.834   9.786  < 2e-16 ***
+## month6                6.349      3.380   1.878  0.06273 .  
+## month7                8.874      3.381   2.624  0.00978 ** 
+## month8                4.823      3.355   1.437  0.15317    
+## month9                5.508      4.516   1.220  0.22487    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 10.41 on 123 degrees of freedom
+##   (1 observation deleted due to missingness)
+## Multiple R-squared:  0.4532, Adjusted R-squared:  0.431 
+## F-statistic: 20.39 on 5 and 123 DF,  p-value: 8.805e-15
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{### test interaction }
+
+\NormalTok{Phosphorus.anova}\FloatTok{.2}\NormalTok{way3 <-}\StringTok{ }\KeywordTok{aov}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ Lake.Nutrients.Surface, tp_ug }\OperatorTok{~}\StringTok{ }\NormalTok{lakename }\OperatorTok{*}\StringTok{ }\NormalTok{month)}
+\KeywordTok{summary}\NormalTok{(Phosphorus.anova}\FloatTok{.2}\NormalTok{way3)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                 Df Sum Sq Mean Sq F value Pr(>F)    
+## lakename         1  10228   10228  98.914 <2e-16 ***
+## month            4    813     203   1.965 0.1043    
+## lakename:month   4   1014     254   2.452 0.0496 *  
+## Residuals      119  12305     103                   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 1 observation deleted due to missingness
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Phosphorus.anova}\FloatTok{.2}\NormalTok{way4 <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ Lake.Nutrients.Surface, tp_ug }\OperatorTok{~}\StringTok{ }\NormalTok{lakename }\OperatorTok{*}\StringTok{ }\NormalTok{month)}
+\KeywordTok{summary}\NormalTok{(Phosphorus.anova}\FloatTok{.2}\NormalTok{way4)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = tp_ug ~ lakename * month, data = Lake.Nutrients.Surface)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -17.384  -4.473  -0.693   1.939  32.489 
+## 
+## Coefficients:
+##                           Estimate Std. Error t value Pr(>|t|)   
+## (Intercept)                11.4740     4.1514   2.764  0.00662 **
+## lakenamePeter Lake          4.3136     5.6574   0.762  0.44729   
+## month6                     -0.9179     4.8288  -0.190  0.84957   
+## month7                     -1.7271     4.7936  -0.360  0.71927   
+## month8                     -2.0872     4.7936  -0.435  0.66405   
+## month9                     -0.7380     6.1575  -0.120  0.90480   
+## lakenamePeter Lake:month6  13.4882     6.6207   2.037  0.04384 * 
+## lakenamePeter Lake:month7  20.3440     6.6207   3.073  0.00263 **
+## lakenamePeter Lake:month8  12.7937     6.5722   1.947  0.05394 . 
+## lakenamePeter Lake:month9  11.1697     8.8622   1.260  0.21000   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 10.17 on 119 degrees of freedom
+##   (1 observation deleted due to missingness)
+## Multiple R-squared:  0.4949, Adjusted R-squared:  0.4567 
+## F-statistic: 12.95 on 9 and 119 DF,  p-value: 3.24e-14
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{### Post Hoc}
+\KeywordTok{TukeyHSD}\NormalTok{(Phosphorus.anova}\FloatTok{.2}\NormalTok{way3)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   Tukey multiple comparisons of means
+##     95% family-wise confidence level
+## 
+## Fit: aov(formula = tp_ug ~ lakename * month, data = Lake.Nutrients.Surface)
+## 
+## $lakename
+##                          diff      lwr      upr p adj
+## Peter Lake-Paul Lake 17.80939 14.26365 21.35513     0
+## 
+## $month
+##           diff         lwr       upr     p adj
+## 6-5  6.3451786  -2.8038335 15.494191 0.3119085
+## 7-5  8.8661326  -0.2828796 18.015145 0.0622967
+## 8-5  4.8191843  -4.2626118 13.900980 0.5839528
+## 9-5  5.4951391  -6.7194172 17.709695 0.7243206
+## 7-6  2.5209540  -4.2125367  9.254445 0.8376355
+## 8-6 -1.5259943  -8.1678685  5.115880 0.9688094
+## 9-6 -0.8500395 -11.3776631  9.677584 0.9994372
+## 8-7 -4.0469483 -10.6888225  2.594926 0.4453729
+## 9-7 -3.3709935 -13.8986170  7.156630 0.9012092
+## 9-8  0.6759548  -9.7933076 11.145217 0.9997679
+## 
+## $`lakename:month`
+##                                  diff         lwr         upr     p adj
+## Peter Lake:5-Paul Lake:5    4.3135714 -13.9293175  22.5564604 0.9989515
+## Paul Lake:6-Paul Lake:5    -0.9178824 -16.4886641  14.6528993 1.0000000
+## Peter Lake:6-Paul Lake:5   16.8838889   1.4263507  32.3414270 0.0206973
+## Paul Lake:7-Paul Lake:5    -1.7271111 -17.1846493  13.7304270 0.9999981
+## Peter Lake:7-Paul Lake:5   22.9304706   7.3596889  38.5012523 0.0002415
+## Paul Lake:8-Paul Lake:5    -2.0872222 -17.5447604  13.3703159 0.9999902
+## Peter Lake:8-Paul Lake:5   15.0200000  -0.3355071  30.3755071 0.0607728
+## Paul Lake:9-Paul Lake:5    -0.7380000 -20.5935673  19.1175673 1.0000000
+## Peter Lake:9-Paul Lake:5   14.7452500  -6.4208558  35.9113558 0.4316694
+## Paul Lake:6-Peter Lake:5   -5.2314538 -19.9572479   9.4943403 0.9787107
+## Peter Lake:6-Peter Lake:5  12.5703175  -2.0356832  27.1763181 0.1571717
+## Paul Lake:7-Peter Lake:5   -6.0406825 -20.6466832   8.5653181 0.9437275
+## Peter Lake:7-Peter Lake:5  18.6168992   3.8911050  33.3426933 0.0032014
+## Paul Lake:8-Peter Lake:5   -6.4007937 -21.0067943   8.2052070 0.9208652
+## Peter Lake:8-Peter Lake:5  10.7064286  -3.7915495  25.2044066 0.3464892
+## Paul Lake:9-Peter Lake:5   -5.0515714 -24.2516579  14.1485150 0.9975850
+## Peter Lake:9-Peter Lake:5  10.4316786 -10.1207861  30.9841433 0.8273658
+## Peter Lake:6-Paul Lake:6   17.8017712   6.7120688  28.8914737 0.0000401
+## Paul Lake:7-Paul Lake:6    -0.8092288 -11.8989312  10.2804737 1.0000000
+## Peter Lake:7-Paul Lake:6   23.8483529  12.6013419  35.0953640 0.0000000
+## Paul Lake:8-Paul Lake:6    -1.1693399 -12.2590423   9.9203626 0.9999989
+## Peter Lake:8-Paul Lake:6   15.9378824   4.9908457  26.8849190 0.0003006
+## Paul Lake:9-Paul Lake:6     0.1798824 -16.5021309  16.8618956 1.0000000
+## Peter Lake:9-Paul Lake:6   15.6631324  -2.5591082  33.8853729 0.1584032
+## Paul Lake:7-Peter Lake:6  -18.6110000 -29.5411300  -7.6808700 0.0000101
+## Peter Lake:7-Peter Lake:6   6.0465817  -5.0431207  17.1362841 0.7595330
+## Paul Lake:8-Peter Lake:6  -18.9711111 -29.9012412  -8.0409811 0.0000062
+## Peter Lake:8-Peter Lake:6  -1.8638889 -12.6492426   8.9214648 0.9999197
+## Paul Lake:9-Peter Lake:6  -17.6218889 -34.1982518  -1.0455259 0.0276305
+## Peter Lake:9-Peter Lake:6  -2.1386389 -20.2642090  15.9869312 0.9999970
+## Peter Lake:7-Paul Lake:7   24.6575817  13.5678793  35.7472841 0.0000000
+## Paul Lake:8-Paul Lake:7    -0.3601111 -11.2902412  10.5700189 1.0000000
+## Peter Lake:8-Paul Lake:7   16.7471111   5.9617574  27.5324648 0.0000827
+## Paul Lake:9-Paul Lake:7     0.9891111 -15.5872518  17.5654741 1.0000000
+## Peter Lake:9-Paul Lake:7   16.4723611  -1.6532090  34.5979312 0.1087387
+## Paul Lake:8-Peter Lake:7  -25.0176928 -36.1073952 -13.9279904 0.0000000
+## Peter Lake:8-Peter Lake:7  -7.9104706 -18.8575073   3.0365661 0.3778093
+## Paul Lake:9-Peter Lake:7  -23.6684706 -40.3504838  -6.9864574 0.0004851
+## Peter Lake:9-Peter Lake:7  -8.1852206 -26.4074611  10.0370199 0.9089776
+## Peter Lake:8-Paul Lake:8   17.1072222   6.3218685  27.8925759 0.0000523
+## Paul Lake:9-Paul Lake:8     1.3492222 -15.2271407  17.9255852 0.9999999
+## Peter Lake:9-Paul Lake:8   16.8324722  -1.2930979  34.9580424 0.0926020
+## Paul Lake:9-Peter Lake:8  -15.7580000 -32.2392597   0.7232597 0.0735733
+## Peter Lake:9-Peter Lake:8  -0.2747500 -18.3133864  17.7638864 1.0000000
+## Peter Lake:9-Paul Lake:9   15.4832500  -6.5132124  37.4797124 0.4163366
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{### Interaction}
+\NormalTok{Phosphorus.interaction <-}\StringTok{ }\KeywordTok{with}\NormalTok{(Lake.Nutrients.Surface, }\KeywordTok{interaction}\NormalTok{(month, lakename))}
+
+\NormalTok{Phosphorus.anova}\FloatTok{.2}\NormalTok{way3 <-}\StringTok{ }\KeywordTok{aov}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ Lake.Nutrients.Surface, tp_ug }\OperatorTok{~}\StringTok{ }\NormalTok{Phosphorus.interaction)}
+
+\NormalTok{Phosphorus.groups <-}\StringTok{ }\KeywordTok{HSD.test}\NormalTok{(Phosphorus.anova}\FloatTok{.2}\NormalTok{way3, }\StringTok{"Phosphorus.interaction"}\NormalTok{, }\DataTypeTok{group =} \OtherTok{TRUE}\NormalTok{)}
+\NormalTok{Phosphorus.groups}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $statistics
+##    MSerror  Df     Mean      CV
+##   103.4055 119 19.07347 53.3141
+## 
+## $parameters
+##    test                 name.t ntr StudentizedRange alpha
+##   Tukey Phosphorus.interaction  10         4.560262  0.05
+## 
+## $means
+##                  tp_ug       std  r    Min    Max     Q25     Q50      Q75
+## 5.Paul Lake  11.474000  3.928545  6  7.001 17.090  8.1395 11.8885 13.53675
+## 5.Peter Lake 15.787571  2.719954  7 10.887 18.922 14.8915 15.5730 17.67400
+## 6.Paul Lake  10.556118  4.416821 17  1.222 16.697  7.4430 10.6050 13.94600
+## 6.Peter Lake 28.357889 15.588507 18 10.974 53.388 14.7790 24.6840 41.13000
+## 7.Paul Lake   9.746889  3.525120 18  4.501 21.763  7.8065  9.1555 10.65700
+## 7.Peter Lake 34.404471 18.285568 17 19.149 66.893 21.6640 24.2070 50.54900
+## 8.Paul Lake   9.386778  1.478062 18  5.879 11.542  8.4495  9.6090 10.45050
+## 8.Peter Lake 26.494000  9.829596 19 14.551 49.757 21.2425 23.2250 27.99350
+## 9.Paul Lake  10.736000  3.615978  5  6.592 16.281  8.9440 10.1920 11.67100
+## 9.Peter Lake 26.219250 10.814803  4 16.281 41.145 19.6845 23.7255 30.26025
+## 
+## $comparison
+## NULL
+## 
+## $groups
+##                  tp_ug groups
+## 7.Peter Lake 34.404471      a
+## 6.Peter Lake 28.357889     ab
+## 8.Peter Lake 26.494000    abc
+## 9.Peter Lake 26.219250   abcd
+## 5.Peter Lake 15.787571    bcd
+## 5.Paul Lake  11.474000     cd
+## 9.Paul Lake  10.736000     cd
+## 6.Paul Lake  10.556118      d
+## 7.Paul Lake   9.746889      d
+## 8.Paul Lake   9.386778      d
+## 
+## attr(,"class")
+## [1] "group"
+\end{verbatim}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{6}
+\item
+  Create two plots, with TN (plot 1) or TP (plot 2) as the response
+  variable and month and lake as the predictor variables. Hint: you may
+  use some of the code you used for your visualization assignment.
+  Assign groupings with letters, as determined from your tests. Adjust
+  your axes, aesthetics, and color palettes in accordance with best data
+  visualization practices.
+\item
+  Combine your plots with cowplot, with a common legend at the top and
+  the two graphs stacked vertically. Your x axes should be formatted
+  with the same breaks, such that you can remove the title and text of
+  the top legend and retain just the bottom legend.
+\end{enumerate}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#7}
+
+\CommentTok{### Set Theme}
+\NormalTok{mytheme <-}\StringTok{ }\KeywordTok{theme_classic}\NormalTok{(}\DataTypeTok{base_size =} \DecValTok{12}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.text =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{color =} \StringTok{"black"}\NormalTok{), }
+        \DataTypeTok{legend.position =} \StringTok{"top"}\NormalTok{)}
+
+\KeywordTok{theme_set}\NormalTok{(mytheme)}
+
+\CommentTok{### Plot 1 - TN }
+
+\NormalTok{Nitrogen.anova.plot <-}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(Lake.Nutrients.Surface, }
+                              \KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ tn_ug, }\DataTypeTok{x =}\NormalTok{ month, }\DataTypeTok{color =}\NormalTok{ lakename)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_boxplot}\NormalTok{()}\OperatorTok{+}
+\StringTok{  }\KeywordTok{stat_summary}\NormalTok{ (}\DataTypeTok{geom =} \StringTok{"text"}\NormalTok{, }\DataTypeTok{fun.y =}\NormalTok{ max, }\DataTypeTok{vjust =} \DecValTok{-1}\NormalTok{, }\DataTypeTok{size =} \FloatTok{3.5}\NormalTok{,}
+               \DataTypeTok{label =} \KeywordTok{c}\NormalTok{ (}\StringTok{"a"}\NormalTok{,}\StringTok{"b"}\NormalTok{,}\StringTok{"a"}\NormalTok{,}\StringTok{"b"}\NormalTok{,}\StringTok{"a"}\NormalTok{,}\StringTok{"b"}\NormalTok{,}\StringTok{"a"}\NormalTok{,}\StringTok{"b"}\NormalTok{,}\StringTok{"a"}\NormalTok{,}\StringTok{"b"}\NormalTok{), }
+               \DataTypeTok{position =} \KeywordTok{position_dodge}\NormalTok{(}\FloatTok{0.75}\NormalTok{),}
+               \DataTypeTok{show.legend =} \OtherTok{FALSE}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_color_viridis_d}\NormalTok{(}\DataTypeTok{option =} \StringTok{"magma"}\NormalTok{, }\DataTypeTok{begin =} \FloatTok{0.3}\NormalTok{, }\DataTypeTok{end =} \FloatTok{0.8}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{ylim}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{2250}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"top"}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Month"}\NormalTok{, }\DataTypeTok{y =} \KeywordTok{expression}\NormalTok{(TN }\OperatorTok{~}\StringTok{ }\NormalTok{(mu}\OperatorTok{*}\NormalTok{g }\OperatorTok{/}\StringTok{ }\NormalTok{L)), }\DataTypeTok{color =} \StringTok{""}\NormalTok{)}
+\KeywordTok{print}\NormalTok{(Nitrogen.anova.plot)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Removed 23 rows containing non-finite values (stat_boxplot).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 23 rows containing non-finite values (stat_summary).
+\end{verbatim}
+
+\includegraphics{Landman_A06_GLMs_Week1_files/figure-latex/unnamed-chunk-4-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{###Plot 2 - Phosphorus}
+
+\CommentTok{### labels came out in the wrong order. Njeri and I discussed in office hours}
+
+\NormalTok{  Phosphorus.anova.plot <-}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(Lake.Nutrients.Surface, }
+                              \KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ tp_ug, }\DataTypeTok{x =}\NormalTok{ month, }\DataTypeTok{color =}\NormalTok{ lakename)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_boxplot}\NormalTok{()}\OperatorTok{+}
+\StringTok{  }\KeywordTok{stat_summary}\NormalTok{ (}\DataTypeTok{geom =} \StringTok{"text"}\NormalTok{, }\DataTypeTok{fun.y =}\NormalTok{ max, }\DataTypeTok{vjust =} \DecValTok{-1}\NormalTok{, }\DataTypeTok{size =} \FloatTok{3.5}\NormalTok{,}
+               \DataTypeTok{label =} \KeywordTok{c}\NormalTok{ (}\StringTok{"bcd"}\NormalTok{,}\StringTok{"cd"}\NormalTok{,}\StringTok{"ab"}\NormalTok{,}\StringTok{"d"}\NormalTok{,}\StringTok{"a"}\NormalTok{,}\StringTok{"d"}\NormalTok{,}\StringTok{"abc"}\NormalTok{,}\StringTok{"d"}\NormalTok{,}\StringTok{"abcd"}\NormalTok{,}\StringTok{"cd"}\NormalTok{), }
+               \DataTypeTok{position =} \KeywordTok{position_dodge}\NormalTok{(}\FloatTok{0.75}\NormalTok{),}
+               \DataTypeTok{show.legend =} \OtherTok{FALSE}\NormalTok{) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{scale_color_viridis_d}\NormalTok{(}\DataTypeTok{option =} \StringTok{"magma"}\NormalTok{, }\DataTypeTok{begin =} \FloatTok{0.3}\NormalTok{, }\DataTypeTok{end =} \FloatTok{0.8}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{ylim}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{75}\NormalTok{)}\OperatorTok{+}
+\StringTok{   }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"top"}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Month"}\NormalTok{, }\DataTypeTok{y =} \KeywordTok{expression}\NormalTok{(TP }\OperatorTok{~}\StringTok{ }\NormalTok{(mu}\OperatorTok{*}\NormalTok{g }\OperatorTok{/}\StringTok{ }\NormalTok{L)), }\DataTypeTok{color =} \StringTok{""}\NormalTok{)}
+\KeywordTok{print}\NormalTok{(Phosphorus.anova.plot)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 1 rows containing non-finite values (stat_summary).
+\end{verbatim}
+
+\includegraphics{Landman_A06_GLMs_Week1_files/figure-latex/unnamed-chunk-4-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{### second graph with no legends for cowplot }
+\NormalTok{Phosphorus.anova.plot2 <-}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(Lake.Nutrients.Surface, }
+                              \KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ tp_ug, }\DataTypeTok{x =}\NormalTok{ month, }\DataTypeTok{color =}\NormalTok{ lakename)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_boxplot}\NormalTok{()}\OperatorTok{+}
+\StringTok{  }\KeywordTok{stat_summary}\NormalTok{ (}\DataTypeTok{geom =} \StringTok{"text"}\NormalTok{, }\DataTypeTok{fun.y =}\NormalTok{ max, }\DataTypeTok{vjust =} \DecValTok{-1}\NormalTok{, }\DataTypeTok{size =} \FloatTok{3.5}\NormalTok{,}
+               \DataTypeTok{label =} \KeywordTok{c}\NormalTok{ (}\StringTok{"bcd"}\NormalTok{,}\StringTok{"cd"}\NormalTok{,}\StringTok{"ab"}\NormalTok{,}\StringTok{"d"}\NormalTok{,}\StringTok{"a"}\NormalTok{,}\StringTok{"d"}\NormalTok{,}\StringTok{"abc"}\NormalTok{,}\StringTok{"d"}\NormalTok{,}\StringTok{"abcd"}\NormalTok{,}\StringTok{"cd"}\NormalTok{), }
+               \DataTypeTok{position =} \KeywordTok{position_dodge}\NormalTok{(}\FloatTok{0.75}\NormalTok{),}
+               \DataTypeTok{show.legend =} \OtherTok{FALSE}\NormalTok{) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{scale_color_viridis_d}\NormalTok{(}\DataTypeTok{option =} \StringTok{"magma"}\NormalTok{, }\DataTypeTok{begin =} \FloatTok{0.3}\NormalTok{, }\DataTypeTok{end =} \FloatTok{0.8}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{ylim}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{75}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"none"}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{"Month"}\NormalTok{, }\DataTypeTok{y =} \KeywordTok{expression}\NormalTok{(TP }\OperatorTok{~}\StringTok{ }\NormalTok{(mu}\OperatorTok{*}\NormalTok{g }\OperatorTok{/}\StringTok{ }\NormalTok{L)), }\DataTypeTok{color =} \StringTok{""}\NormalTok{)}
+
+\NormalTok{Nitrogen.anova.plot2 <-}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(Lake.Nutrients.Surface, }
+                              \KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ tn_ug, }\DataTypeTok{x =}\NormalTok{ month, }\DataTypeTok{color =}\NormalTok{ lakename)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_boxplot}\NormalTok{()}\OperatorTok{+}
+\StringTok{  }\KeywordTok{stat_summary}\NormalTok{ (}\DataTypeTok{geom =} \StringTok{"text"}\NormalTok{, }\DataTypeTok{fun.y =}\NormalTok{ max, }\DataTypeTok{vjust =} \DecValTok{-1}\NormalTok{, }\DataTypeTok{size =} \FloatTok{3.5}\NormalTok{,}
+               \DataTypeTok{label =} \KeywordTok{c}\NormalTok{ (}\StringTok{"a"}\NormalTok{,}\StringTok{"b"}\NormalTok{,}\StringTok{"a"}\NormalTok{,}\StringTok{"b"}\NormalTok{,}\StringTok{"a"}\NormalTok{,}\StringTok{"b"}\NormalTok{,}\StringTok{"a"}\NormalTok{,}\StringTok{"b"}\NormalTok{,}\StringTok{"a"}\NormalTok{,}\StringTok{"b"}\NormalTok{), }
+               \DataTypeTok{position =} \KeywordTok{position_dodge}\NormalTok{(}\FloatTok{0.75}\NormalTok{),}
+               \DataTypeTok{show.legend =} \OtherTok{FALSE}\NormalTok{) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{scale_color_viridis_d}\NormalTok{(}\DataTypeTok{option =} \StringTok{"magma"}\NormalTok{, }\DataTypeTok{begin =} \FloatTok{0.3}\NormalTok{, }\DataTypeTok{end =} \FloatTok{0.8}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{ylim}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{2300}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"top"}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{x =} \StringTok{""}\NormalTok{, }\DataTypeTok{y =} \KeywordTok{expression}\NormalTok{(TN }\OperatorTok{~}\StringTok{ }\NormalTok{(mu}\OperatorTok{*}\NormalTok{g }\OperatorTok{/}\StringTok{ }\NormalTok{L)), }\DataTypeTok{color =} \StringTok{""}\NormalTok{)}
+
+
+\CommentTok{#8}
+
+\KeywordTok{plot_grid}\NormalTok{(Nitrogen.anova.plot2, Phosphorus.anova.plot2, }\DataTypeTok{nrow =} \DecValTok{2}\NormalTok{, }\DataTypeTok{align =} \StringTok{"v"}\NormalTok{, }\DataTypeTok{rel_heights =} \KeywordTok{c}\NormalTok{(}\FloatTok{1.25}\NormalTok{, }\DecValTok{1}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Removed 23 rows containing non-finite values (stat_boxplot).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 23 rows containing non-finite values (stat_summary).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 1 rows containing non-finite values (stat_summary).
+\end{verbatim}
+
+\includegraphics{Landman_A06_GLMs_Week1_files/figure-latex/unnamed-chunk-4-3.pdf}
+
+
+\end{document}
