@@ -138,7 +138,7 @@ rsquared(litter.mixed)
 
 b. continued... How much more variance is explained by adding the random effect to the model? 
 
-> Answer: 2 %
+> Answer: 2 % (difference between conditional and marginal R2)
 
 c. Run the same model without the random effect.
 d. Run an anova on the two tests. 
