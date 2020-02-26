@@ -84,23 +84,35 @@ summary(TempRegression)
 
 5. What is the final set of explanatory variables that predict temperature from your multiple regression? How much of the observed variance does this model explain?
 
-> Answer: 
+> Answer: Year, Day number and depth are the final set of explanatory 
+variables that predict temperature. The model explains 74% of the observed variance. 
 
 6. Run an interaction effects ANCOVA to predict temperature based on depth and lakename from the same wrangled dataset.
 
 ```{r}
 #6
+Tempancova.interaction <- lm(data = NTL.chem.July, temperature_C ~ lakename * depth)
+summary(Tempancova.interaction)
 
 ```
 
 7. Is there a significant interaction between depth and lakename? How much variance in the temperature observations does this explain?
 
-> Answer: 
+> Answer: There is a significant interaction between depth and lake name. This model explained 79% of variance in temperature. 
 
 8. Create a graph that depicts temperature by depth, with a separate color for each lake. Add a geom_smooth (method = "lm", se = FALSE) for each lake. Make your points 50 % transparent. Adjust your y axis limits to go from 0 to 35 degrees. Clean up your graph to make it pretty. 
 
 ```{r}
 #8
+
+Tempplot <- ggplot(data = NTL.chem.July, aes(x = depth, y = temperature_C, color = lakename)) + 
+  geom_point(alpha = 0.5, size = 0.75) + 
+  geom_smooth(method = "lm", se = FALSE) +
+  ylim(0, 35)+
+  labs(x = "Depth (m)", y = expression("Temperature " ( degree~C)), color = "")+
+  scale_color_viridis_d()
+print(Tempplot)
+
 
 ```
 
@@ -110,6 +122,16 @@ a. Build and run a mixed effects model.
 b. Check the difference between the marginal and conditional R2 of the model. 
 
 ```{r}
+
+# a. 
+litter.mixed <- lme(data = Litter,
+                     dryMass ~ nlcdClass * functionalGroup, 
+                     random = ~1|plotID)
+summary(litter.mixed)
+
+#b. 
+rsquared(litter.mixed)
+
 
 
 ```
@@ -122,9 +144,16 @@ c. Run the same model without the random effect.
 d. Run an anova on the two tests. 
 ```{r}
  
+#c. 
+litter.fixed <- gls(data = Litter,
+                     dryMass ~ nlcdClass * functionalGroup)
+summary(litter.fixed)
+rsquared(litter.fixed)
+
+anova(litter.mixed, litter.fixed)
 
 ```
 
 d. continued... Is the mixed effects model a better model than the fixed effects model? How do you know?
 
-> Answer: 
+> Answer: Yes, the mixed effects model is a better model than the fixed effects model. This is apparent because the AIC for the mixed effect model is lower than the AIC for the fixed effects model. Additionally, the p-value <.0001, which indicates there is a significant difference between the models. 
