@@ -195,11 +195,11 @@ In general, detecting a monotonic trend requires a long sequence of data with fe
 
 Adjusting the data may be necessary to fulfill the assumptions of a trend test. These adjustments include **aggregation**, **subsampling**, and **interpolation**. What do each of these mean, and why might we want to use them?
 
-> aggregation: 
+> aggregation: Taking multiple data points and combining them to make one point. For example if you have daily data you could turn it into weekly or monthly to determine trends. Could also be useful if you are missing data, e.g. 28 days of 30 day month, you could take a summary statistic and aggregate data to month. 
 
-> subsampling: 
+> subsampling: For example, if you have daily data, you could take the first of every month as a representative for each month. Used less than aggregation. 
 
-> interpolation: 
+> interpolation: Predicting what could be in data gaps by extrapolating from data. 
 
 Common interpolation methods: 
 
@@ -275,10 +275,11 @@ EnoDischarge.late.monthly <- EnoDischarge.late %>%
   group_by(Year, Month) %>%
   summarise(Discharge = mean(discharge.mean)) 
   
-EnoDischarge.late.monthly$Date <- as.Date(paste(EnoDischarge.late.monthly$Year, 
-                                                EnoDischarge.late.monthly$Month, 
-                                                1, sep="-"), 
-                                          format = "%Y-%m-%d")
+EnoDischarge.late.monthly$Date <- as.Date(paste(EnoDischarge.late.monthly$Year,                                           EnoDischarge.late.monthly$Month, 
+                1, sep="-"),
+                format = "%Y-%m-%d")
+### add this to have a data access for graphing 
+### Don't use this column in your actual time series because it's making each monthly average into the 1st day of each month 
 
 # Generate time series (smk.test needs ts, not data.frame)
 EnoDischarge.late.monthly.ts <- ts(EnoDischarge.late.monthly$Discharge, frequency = 12, 
@@ -288,7 +289,13 @@ EnoDischarge.late.trend <- smk.test(EnoDischarge.late.monthly.ts)
 
 # Inspect results
 EnoDischarge.late.trend
+### is there a trend over time 
+### is it positive or negative 
+#### high p value, z close to 0 so we can't see a significant trend
+### Z score <-1.96 is decreasing trend 
+### Z score > 1.96 is a positive trend 
 summary(EnoDischarge.late.trend)
+### is there a trend for seasons 
 
 EnoDischarge.monthly <-
 ggplot(EnoDischarge.late.monthly, aes(x = Date, y = Discharge)) +
@@ -299,10 +306,11 @@ print(EnoDischarge.monthly)
 
 What would we conclude based on these findings? 
 
->
+> Average monthly discharge from the Eno River has remained consistent from 1985 - 2020. There has been so significant seasonal trend in monthly dischage over the years (Seasonal Mann Kendall, z= -0.14, p = 0.89).  
  
 If a significant trend was present, we could compute a **Sen's Slope** to quantify that trend (`sens.slope` function in the trend package).
 
+### don't try to graph slope for time series. It's difficult 
 
 
 ## Forecasting with Autoregressive and Moving Average Models (ARMA)
