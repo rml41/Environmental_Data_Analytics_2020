@@ -36,7 +36,7 @@ library(zoo)
 library(trend)
 library(dplyr)
 
-mytheme <- theme_classic(base_size = 12) +
+mytheme <- theme_bw(base_size = 12) +
   theme(axis.text = element_text(color = "black"), 
         legend.position = "top")
 
@@ -89,23 +89,26 @@ GaringerOzone2019 <-
 # 2 
 
 GaringerOzone<- 
-  rbind(GaringerOzone2010, GaringerOzone2011, GaringerOzone2012, GaringerOzone2013, GaringerOzone2014, GaringerOzone2015, GaringerOzone2016, GaringerOzone2017, GaringerOzone2018, GaringerOzone2019)
+  rbind(GaringerOzone2010, GaringerOzone2011, GaringerOzone2012,
+        GaringerOzone2013, GaringerOzone2014, GaringerOzone2015,
+        GaringerOzone2016, GaringerOzone2017, GaringerOzone2018,
+        GaringerOzone2019)
 
 
 # 3
 
-GaringerOzone$Date <-as.Date(GaringerOzone$Date, format = "%m/%d/%Y")
+GaringerOzone$Date <-
+  as.Date(GaringerOzone$Date, format = "%m/%d/%Y")
 
 # 4
 GaringerOzone <- GaringerOzone %>%
-  select(Date, Daily.Max.8.hour.Ozone.Concentration, DAILY_AQI_VALUE)
+  select(Date, Daily.Max.8.hour.Ozone.Concentration,
+         DAILY_AQI_VALUE)
 
 
 # 5
 
-Days <- as.data.frame(seq(as.Date('2010-01-01'), as.Date('2019-12-13'), by = 'days'))
-
-##### WHY AM I GETTING WRONG NUMBER OF DAYS #### 
+Days <- as.data.frame(seq(as.Date('2010-01-01'), as.Date('2019-12-31'), by = 'days'))
 
 colnames(Days)
 
@@ -113,7 +116,6 @@ colnames(Days) <- "Date"
 
 # 6
 GaringerOzone <- left_join(Days, GaringerOzone)
-##### WHY AM I GETTING WRONG NUMBER OF DAYS #### 
 
 ```
 
@@ -123,9 +125,10 @@ GaringerOzone <- left_join(Days, GaringerOzone)
 
 ```{r}
 
-ggplot(GaringerOzone, aes(x = Date, y = Daily.Max.8.hour.Ozone.Concentration))+
+ggplot(GaringerOzone, 
+       aes(x = Date, y =  Daily.Max.8.hour.Ozone.Concentration))+
   geom_line(size = 0.5)+
-  labs( x = "Date", y = "Daily Max 8 Hours Ozone Concentration (ppm)")+
+  labs( x = "Date", y = "Daily Max 8 Hours Ozone Concentration (ppm)")
 
 ```
 
@@ -143,7 +146,7 @@ Study question: Have ozone concentrations changed over the 2010s at this station
 
 11. Run a time series analysis. In this case the seasonal Mann-Kendall is most appropriate; why is this?
 
-> Answer: 
+> Answer: Our initial graph of ozone over time looked like it has a seasonal cycle, with high variablily. Therefore, it is valuable to account for the seasonal cycle when assessing if ozone concentrations have a monotonic trend. 
 
 12. To figure out the slope of the trend, run the function `sea.sens.slope` on the time series dataset. 
 
@@ -172,7 +175,7 @@ GaringerOzone.monthly$Date <-
   
 
 
-# 10 Generate a time series called GaringerOzone.monthly.ts, with a monthly frequency that specifies the correct start and end dates.
+# 10 
 
 GaringerOzone.monthly.ts <- 
   ts(GaringerOzone.monthly$Ozone, frequency = 12,
@@ -180,7 +183,6 @@ GaringerOzone.monthly.ts <-
   
   
 # Run SMK test
-EnoDischarge.late.trend <- smk.test(EnoDischarge.late.monthly.ts)
 
 # 11 
 
@@ -199,18 +201,18 @@ summary(GaringerOzone.trend)
 sens.slope(GaringerOzone.monthly.ts)
 
 
-# 13 Create a plot depicting mean monthly ozone concentrations over time, with both a geom_point and a geom_line layer. No need to add a line for the seasonal Sen's slope; this is difficult to apply to a graph with time as the x axis. Edit your axis labels accordingly.
+# 13
 
 GaringerOzone.monthly.trend <-
 ggplot(GaringerOzone.monthly , aes(x = Date, y = Ozone)) +
   geom_point() +
   geom_line()+
   labs(x = "Date", y = "Average Monthly Ozone Concentration (ppm)")
-print(GaringerOzone.monthly)
+print(GaringerOzone.monthly.trend)
   
 
 ```
 
 14. To accompany your graph, summarize your results in context of the research question. Include output from the statistical test in parentheses at the end of your sentence. Feel free to use multiple sentences in your interpretation.
 
-> Answer: 
+> Answer: Average monthly ozone concentration has decreased at a rate of 0.00025 ppm per year from 2010 - 2020. There has been no significant seasonal trend in ozone concentration over the years (Seasonal Mann Kendall, z= -1.963, p = 0.0497).  
