@@ -550,20 +550,39 @@ Bonus: What are some other spatial operations (or confirmations) that you could 
 
 NC_state_bounds <- southeast_state_bounds %>% filter(STUSPS == "NC")
 
+ga_state_bounds_geom <- southeast_state_bounds %>%
+  filter(NAME == "Georgia") %>%
+  st_geometry()
+
 # check
 # add your code here
+head(ga_state_bounds_geom)
 
 # select watersheds that intersect with NC bounds
 # add your code here
 
+ga_basins_nf_seplains <- basins_nf_seplains %>% 
+  st_intersection(ga_state_bounds_geom)
+
 # check
 # add your code here
+
+head(ga_basins_nf_seplains)
 
 # select gages that fall within NC bounds
 # add your code here
 
+ga_gages <- gages %>%
+  st_intersection(ga_state_bounds_geom)
+
 # bonus
 # add your code here
+
+ga_area <- st_area(ga_state_bounds_geom)
+ga_centroid <- st_centroid(ga_state_bounds_geom)
+ga_gages_buffer_100m <- st_buffer (ga_gages, dist = 100)
+not_ga_gages <- st_difference(gages, ga_state_bounds_geom)
+
 ```
 
 It's really helpful to actually plot these results before moving forward with your work. That way you an make sure the sf commands are doing what you expect. We'll talk about plotting next...
@@ -606,8 +625,23 @@ dev.off()
 Let's check your operations from the 3.1.2 activity. You are trying for something like Figure 1a. Are the spatial operation results working as you'd expect? Test out running other operations (i.e., st_crop() and st_contains()) and plotting them to better understand what those do.
 
 ```{r activity.checking.operations}
+### test GA state boundary
+
+pdf(here("outputs", "ga_state_bounds.pdf"), width = 11, height = 8.5)
+ggplot() +
+  geom_sf(data = ga_state_bounds_geom) + # you can add color = "blue" to change outline color to blue or lwd = 2 to change the width of the lines
+  theme_bw() # add this to make the background white and not grey
+dev.off()
+
 # plot NC watershed boundardies from 3.1.2
-pdf(here("outputs", "spatial_operations_test_fig.pdf"), width = 11, height = 8.5)
+pdf(here("outputs", "spatial_operations_test_fig2.pdf"), width = 11, height = 8.5)
+ggplot() +
+  geom_sf(data = ga_state_bounds_geom) +
+  geom_sf(data = ga_basins_nf_seplains, fill = "pink", alpha = 0.25)+
+  geom_sf(data = ga_gages, color = "black")+
+  theme_bw()
+dev.off()
+
 # add your code here
 dev.off()
 ```
@@ -624,6 +658,12 @@ nc_state_bounds_geom <- southeast_state_bounds %>%
   filter(NAME == "North Carolina") %>%
   st_geometry()
 
+ga_state_bounds_geom <- southeast_state_bounds %>%
+  filter(NAME == "Georgia") %>%
+  st_geometry()
+
+### st_geometry() drops attributes and just keeps geometry of shape file 
+
 # get data bounding box
 nc_bbox <- nc_state_bounds_geom %>%
   st_buffer(dist = 150000) %>% # this value is very arbitrary just wanting to make a large buffer around geometry
@@ -632,18 +672,21 @@ nc_bbox <- nc_state_bounds_geom %>%
 nc_bbox # check
 
 # fix bounding box columns so they match what is needed for the ggmap::get_map() function
+### fucntion (ggmap:getmap()) pulls basemap
 nc_bbox_fix <- c(left = nc_bbox[[1]], bottom = nc_bbox[[2]], right = nc_bbox[[3]], top = nc_bbox[[4]])
 
 # check result
 nc_bbox_fix
 
 # get basemap
+### type get_map in help to see figure out how much you want to zoom 
 nc_basemap <- get_map(nc_bbox_fix, maptype = 'terrain-background', source = 'stamen', zoom = 8)
 class(nc_basemap)
 st_crs(nc_basemap)
 # you'll have to trust me that this will have a CRS = WGS84
 
 # convert nc_state_bounds_geom to WGS84 so it matches nc_basemap
+### converts it back to lat/long 
 nc_state_bounds_geom_wsg84 <- nc_state_bounds_geom %>%
   st_transform(4326)
 
@@ -665,7 +708,7 @@ ggmap(nc_basemap) +
 dev.off()
 
 # bonus
-# try chaning the zoom on get_map() and see what happens
+# try changing the zoom on get_map() and see what happens
 # look at the help menu for more information on the zoom range
 ```
 
@@ -742,17 +785,17 @@ names(nc_gages)
 # use "STAID"
 
 # join the tabular data to nc_gages
-nc_gages_climate <- nc_gages %>%
+nc_gages_hydro <- nc_gages %>%
   left_join(my_tabular_data_raw, by = "STAID")
 
 # check that it worked
-names(nc_gages_climate)
+names(nc_gages_hydro)
 # looks good!
 
 # plot WD_SITE for each gage location
-pdf(here("outputs", "nc_gages_by_tabular_data.pdf"), width = 11, height = 8.5)
+pdf(here("outputs", "nc_gages_by_tabular_data2.pdf"), width = 11, height = 8.5)
 ggplot() +
-  geom_sf(data = nc_gages_climate, aes(color = WD_SITE), size = 3) +
+  geom_sf(data = nc_gages_hydro, aes(color = DRAIN_SQKM), size = 3) +
   scale_color_gradient(low = "white", high = "blue") +
   labs(color = "Gage Avg. Annual # Days with Precipitation") +
   geom_sf(data = nc_state_bounds_geom, fill = NA) +
