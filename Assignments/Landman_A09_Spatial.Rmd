@@ -1,0 +1,294 @@
+---
+title: "Assignment 9: Spatial Analysis"
+author: "Student Name"
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
+---
+
+## OVERVIEW
+
+This exercise accompanies the lessons in Environmental Data Analytics on spatial analysis. 
+
+## Directions
+1. Use this document to create code for a map. You will **NOT** be turning in the knitted Rmd file this time, only the pdf output for a map.
+2. When you have produced your output, submit **only** the pdf file for the map, without any code. Please name your file "StudentName_A09_Spatial.pdf".
+
+The completed exercise is due on Thursday, March 19 at 1:00 pm.
+
+## Create a map
+
+You have three options for this assignment, and you will turn in just **one** final product. Feel free to choose the option that will be most beneficial to you. For all options, to earn full points you should use best practices for data visualization that we have covered in previous assignments (e.g., relabeling axes and legends, choosing non-default color palettes, etc.).
+
+Here are your three options: 
+
+1. Reproduce figure 1b from the spatial lesson, found in section 3.2.2. You may choose a state other than North Carolina, but your map should still contain the spatial features contained in figure 1b in the "img" folder. 
+
+2. Create a new map that mixes spatial and tabular data, as in section 3.3 of the spatial lesson. You may use the maps created in the lesson as an example, but your map should contain data other than precipitation days per year. This map should include: 
+
+* State boundary layer
+* Basin boundary layer
+* Gage layer
+* Tabular data (as an aesthetic for one of the layers)
+
+3. Create a map of any other spatial data. This could be data from the spatial lesson, data from our other course datasets (e.g., the Litter dataset includes latitude and longitude of trap sites), or another dataset of your choosing.  Your map should include: 
+
+* One or more layers with polygon features (e.g., country boundaries, watersheds)
+* One or more layers with point and/or line features (e.g., sampling sites, roads)
+* Tabular data that correpond to one of the layers, specified as an aesthetic (e.g., total litter biomass at each trap, land cover class at each trap)
+
+Hint: One package that may come in handy here is the `maps` package, which contains several options for basemaps that cover political and geologic boundaries.
+
+```{r load.libraries, error=FALSE, message=FALSE, warning=FALSE}
+# some tidyverse packages
+library("readr")
+library("dplyr")
+library("tidyr")
+library("ggplot2")
+library("purrr")
+# some spatial data packages
+library("sf")
+library("ggmap")
+# some other packages
+library("here")
+
+##install.packages("maps")
+library("maps")
+```
+
+```{r}
+pdf(here("Lessons", "pdf_test.pdf"), width = 11, height = 8.5)
+ggplot(data = cars) +
+  geom_point(aes(x = dist, y = speed))
+dev.off()
+```
+
+Load Data
+```{r}
+basins_nf_seplains_raw <- st_read(here("Lessons","sf-lesson-20200303", "data", "spatial_data", "bas_nonref_SEPlains.shp"))
+
+southeast_state_bounds_raw <- st_read(here("Lessons","sf-lesson-20200303","data", "spatial_data", "southeast_state_bounds.shp"))
+
+nc_rivers <- st_read(here("Data","Raw", "MajorHydro.shp"))
+
+nc_12HUC <- st_read(here("Data","Raw","12Digit_HUC_Subwatersheds", "12Digit_HUC_Subwatersheds.shp"))
+```
+
+Check CRS and define proj and EPSG
+```{r}
+st_crs(basins_nf_seplains_raw)
+st_crs(southeast_state_bounds_raw)
+
+## define 
+my_proj4 <- "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+my_epsg <- 5070
+
+## set 
+
+st_crs(basins_nf_seplains_raw) <- my_proj4
+st_crs(basins_nf_seplains_raw) <- my_epsg
+
+st_crs(southeast_state_bounds_raw) <- my_proj4
+st_crs(southeast_state_bounds_raw) <- my_epsg
+```
+
+Convert Ellerbe Tabular to Spatial 
+
+```{r}
+ellerbe_gages_raw <- read_csv(here("Project", "Ellerbe_12DigitHUC_Stream_Stations.csv")) %>% as.data.frame()
+
+class(ellerbe_gages_raw)
+names(ellerbe_gages_raw)
+
+# convert to sf object
+ellerbe_gages_as_sf <- st_as_sf(ellerbe_gages_raw, 
+                                coords = c("LongitudeMeasure",
+                                           "LatitudeMeasure"), 
+                                crs = 4326, dim = "XY") 
+# lat long so set CRS = WGS84
+
+# check class and CRS
+class(ellerbe_gages_as_sf)
+head(ellerbe_gages_as_sf)
+st_crs(ellerbe_gages_as_sf)
+
+pdf(here("Lessons", "tabular_to_sf_check.pdf"), width = 11, height = 8.5)
+ggplot() +
+  geom_sf(data = ellerbe_gages_as_sf) +
+  theme_bw()
+dev.off()
+
+```
+
+Select NC from State Bounds
+
+```{r}
+nc_state_bounds_geom <- southeast_state_bounds_raw %>%
+  filter(NAME == "North Carolina") %>%
+  st_geometry()
+
+head (nc_state_bounds_geom)
+
+nc_basins_nf_seplains <- basins_nf_seplains_raw %>%
+  st_intersection(nc_state_bounds_geom)
+
+head(nc_basins_nf_seplains)
+
+nc_area <- st_area(nc_state_bounds_geom)
+nc_centroid <- st_centroid(nc_state_bounds_geom)
+nc_gages_buffer_100m <- st_buffer (ellerbe_gages_as_sf, dist = 100)
+
+```
+
+Select Ellerbe HUC
+
+```{r}
+ellerbe_watershed8 <- nc_12HUC %>%
+  filter(HUC_8 == "03020201") %>%
+  st_geometry()
+
+ellerbe_watershed12 <- nc_12HUC %>%
+filter(HUC_12 == "030202010403")%>%
+  st_geometry()
+
+
+head(ellerbe_watershed)
+```
+
+Intersect Rivers with Ellerbe HUC
+```{r}
+nc_rivers_ellerbe <- nc_rivers %>% 
+  st_intersection(ellerbe_watershed12)
+
+nc_rivers_HUC8 <- nc_rivers %>% 
+  st_intersection(ellerbe_watershed8)
+```
+
+
+Plot
+
+```{r}
+pdf(here("Lessons", "nc_state_bounds.pdf"), width = 11, height = 8.5)
+ggplot() +
+  geom_sf(data = nc_state_bounds_geom) + # you can add color = "blue" to change outline color to blue or lwd = 2 to change the width of the lines
+  theme_bw() # add this to make the background white and not grey
+dev.off()
+
+
+pdf(here("Lessons", "test_basins.pdf"), width = 11, height = 8.5)
+ggplot() +
+  geom_sf(data = nc_basins_nf_seplains, fill = "pink", alpha = 0.25)+
+  theme_bw()
+dev.off()
+
+
+pdf(here("Lessons", "test2_gages.pdf"), width = 11, height = 8.5)
+ggplot() +
+  geom_sf(data = nc_state_bounds_geom) +
+  geom_sf(data = ellerbe_gages_as_sf, color = "pink") +
+  geom_sf(data = nc_rivers, color = "blue")+
+  theme_bw()
+dev.off()
+
+## add basemap 
+
+nc_state_bounds_geom <- southeast_state_bounds_raw %>%
+  filter(NAME == "North Carolina") %>%
+  st_geometry()
+
+nc_bbox <- nc_state_bounds_geom %>%
+  st_buffer(dist = 150000) %>% # this value is very arbitrary just wanting to make a large buffer around geometry
+  st_transform(4326) %>% # WGS84 (for lat and long)
+  st_bbox()
+nc_bbox # check
+
+# fix bounding box columns so they match what is needed for the ggmap::get_map() function
+### fucntion (ggmap:getmap()) pulls basemap
+nc_bbox_fix <- c(left = nc_bbox[[1]], bottom = nc_bbox[[2]], right = nc_bbox[[3]], top = nc_bbox[[4]])
+
+# check result
+nc_bbox_fix
+
+# get basemap
+### type get_map in help to see figure out how much you want to zoom 
+nc_basemap <- get_map(nc_bbox_fix, maptype = 'terrain-background', source = 'stamen', zoom = 8)
+class(nc_basemap)
+st_crs(nc_basemap)
+
+
+ellerbe_map <- 
+  get_map (location = c( long = 36.0283820, lat = -78.9020959), 
+           maptype ='terrain-background', source = 'stamen', zoom = 10)
+
+class(nc_basemap)
+st_crs(nc_basemap)
+# convert nc_state_bounds_geom to WGS84 so it matches nc_basemap
+### converts it back to lat/long 
+nc_state_bounds_geom_wsg84 <- nc_state_bounds_geom %>%
+  st_transform(4326)
+
+st_crs(nc_state_bounds_geom_wsg84)
+
+### plot 
+pdf(here("Lessons", "nc_without_basemap.pdf"), width = 11, height = 8.5)
+ggplot() +
+  geom_sf(data = nc_state_bounds_geom_wsg84, fill = NA, lwd = 2) +
+  theme_bw()
+dev.off()
+
+pdf(here("Lessons", "nc_with_basemap.pdf"), width = 11, height = 8.5)
+ggmap(nc_basemap) +
+  geom_sf(data = nc_state_bounds_geom_wsg84, fill = NA, lwd = 1, inherit.aes = FALSE)
+dev.off()
+
+
+pdf(here("Lessons", "ellerbe_watershed_test"), width = 11, height = 8.5)
+ggplot() +
+  geom_sf(data = ellerbe_watershed, fill = "blue", lwd = 2) +
+  geom_sf(data = ellerbe_gages_as_sf, color = "red")+
+  theme_bw()
+dev.off()
+
+
+pdf(here("Lessons", "ellerbe_watershed_test2"), width = 11, height = 8.5)
+ggplot() +
+  geom_sf(data = ellerbe_watershed, fill = "lightblue", lwd = 0.5) +
+  geom_sf(data = nc_rivers_HUC8, color = "blue")+
+  geom_sf(data = ellerbe_gages_as_sf, color = "red")+
+  theme_bw()
+dev.off()
+
+pdf(here("Lessons", "ellerbe_watershed_HUC12"), width = 11, height = 8.5)
+ggplot() +
+  geom_sf(data = ellerbe_watershed12, fill = "lightblue", lwd = 0.5) +
+  geom_sf(data = nc_rivers_ellerbe, color = "blue")+
+  geom_sf(data = ellerbe_gages_as_sf, color = "red")+
+  theme_bw()
+dev.off()
+
+
+### convert data to wsg84
+
+ellerbe_watershed_wsg84 <- ellerbe_watershed12 %>%
+  st_transform(4326)
+
+ellerbe_gages_wsg84 <- ellerbe_gages_as_sf
+ st_transform(4326)
+ 
+ st_crs(ellerbe_gages_wsg84)
+ st_crs(ellerbe_gages_as_sf)
+ st_crs(nc_basemap)
+ 
+ st_crs(nc_basemap) <- 4326
+
+pdf(here("Lessons", "ellerbe_watershed12_test"), width = 11, height = 8.5)
+ ggmap(nc_basemap) +
+  geom_sf(data = ellerbe_watershed_wsg84, fill = "NA", lwd = 2,inherit.aes = FALSE) +
+    geom_sf(data = ellerbe_gages_as_sf, color = "red", inherit.aes = FALSE)+
+  theme_bw()
+dev.off()
+
+```
+
+
