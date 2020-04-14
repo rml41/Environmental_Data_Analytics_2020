@@ -1,6 +1,8 @@
 ---
 title: "Project_Code"
 output: pdf_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -27,7 +29,7 @@ plot(pressure)
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
-
+# Set Working Directory and Load Data 
 ```{r setup, include=FALSE}
 # Set your working directory
 
@@ -42,7 +44,60 @@ library(tidyverse)
 
 # Load your datasets
 
-Ellerbee.Raw <- read.csv(../Data/Raw)
+Ellerbe_Raw <- read.csv("./Data/Raw/Ellerbe_WaterQuality_Raw_Data.csv")
+
+head(Ellerbe_Raw)
+colnames(Ellerbe_Raw)
+summary(Ellerbe_Raw$ActivityTypeCode, maxsum = 5)
+head(Ellerbe_Raw$ActivityTypeCode)
+
+Ellerbe_Processed <- Ellerbe_Raw %>%
+  select(OrganizationIdentifier, ActivityStartDate:`ActivityEndTime.Time`, MonitoringLocationIdentifier, HydrologicEvent, HydrologicCondition, CharacteristicName, ResultSampleFractionText, ResultMeasureValue, ResultStatusIdentifier, ResultValueTypeName, -`ActivityStartTime.TimeZoneCode`)
+
+write.csv(Ellerbe_Processed, row.names = FALSE, 
+          file = "./Data/Processed/Ellerbe_Processed.csv")
+
+getwd()
+```
+
+
+
+# Format Dates
+```{r}
+Ellerbe_Processed$ActivityStartDate <- as.Date(Ellerbe_Processed$ActivityStartDate, format = "%m/%d/%y")
+Ellerbe_Processed$ActivityEndDate <- as.Date(Ellerbe_Processed$ActivityEndDate, format = "%m/%d/%y")
 
 ```
+
+#Pull out just nutrient data 
+```{r}
+Ellerbe_Nutrients <- subset(Ellerbe_Processed, CharacteristicName == "Flow" | CharacteristicName == "Gage height" | CharacteristicName == "Total dissolved solids" | CharacteristicName == "Height, gage" | CharacteristicName == "Temperature" | CharacteristicName == "Total suspended solids" | CharacteristicName == "Nitrogen, mixed forms (NH3), (NH4), organic, (NO2) and (NO3)" | CharacteristicName == "Phosphorus")
+
+Ellerbe_Nutrients <- drop_na(Ellerbe_Nutrients, ResultMeasureValue)
+
+```
+
+
+#Convert to Wide
+
+```{r}
+Ellerbe_Nutrients_Summarise <- Ellerbe_Nutrients %>%
+  group_by (MonitoringLocationIdentifier, ActivityStartDate, HydrologicEvent, CharacteristicName) %>% 
+summarise (meanresult = mean(ResultMeasureValue))
+
+
+spread(Ellerbe_Nutrients, CharacteristicName, ResultMeasureValue)
+
+write.csv(Ellerbe_Nutrients, row.names = FALSE, 
+          file = "./Data/Processed/Ellerbe_Nutrients.csv")
+
+write.csv(Ellerbe_Nutrients_Summarise, row.names = FALSE, 
+          file = "./Data/Processed/Ellerbe_Nutrients_Summarise.csv")
+
+
+Ellerbe_Wide <- pivot_wider(Ellerbe_Nutrients, id_cols = c(MonitoringLocationIdentifier,ActivityStartDate, `ActivityStartTime.Time`), names_from = CharacteristicName, values_from = ResultMeasureValue)
+
+```
+
+
 
